@@ -14,29 +14,6 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "/index.html"));
 });
 
-app.get("/about", (req, res) => {
-  res.sendFile(path.join(__dirname, "/about.html"));
-});
-
-app.get("/go-room", (req, res) => {
-  res.sendFile(path.join(__dirname, "/go-room.html"));
-});
-
-app.get("/create-room", (req, res) => {
-  // yeni room kur ve gerekli yerlere ekle.
-
-
-  // roomID yi html dosyası ile birlikte yolla.
-  res.sendFile(path.join(__dirname, "/create-room.html"));
-});
-
-app.get("/room", (req, res) => {
-  res.sendFile(path.join(__dirname, "/room.html"));
-
-
-  // roomID bir şeyler yapılmalı.
-});
-
 app.listen(port, () => {
   console.log(`Server is up and running on port ${port}`);
 });
