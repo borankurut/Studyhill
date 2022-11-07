@@ -24,7 +24,7 @@
         font-size: 20px;
       }
       .box-link {
-        width: 250px;
+        width: 100%;
         margin: 0 auto;
         background-color: rgba(15, 8, 149, 0.485);
         color: white;
@@ -55,33 +55,38 @@
       .signup-div a:hover {
         background-color: #d5d5d5;
       }
+      .centered-div {
+        width: 100%;
+      }
+
+      @media screen and (min-width: 993px) {
+        .centered-div {
+          width: fit-content;
+        }
+      }
     </style>
   </head>
   <body>
     <div class="container">
-      <div class="wrapper">
+      <div class="centered-div">
         <h1 class="big-header hidden-header">STUDYHILL</h1>
         <form class="box hidden">
-          <div class="wrapper">
-            <label for="email">Email</label>
-            <input
-              type="email"
-              name="email"
-              id="email"
-              required
-              placeholder="Please enter your email"
-            />
-          </div>
-          <div class="wrapper">
-            <label for="password">Password</label>
-            <input
-              type="password"
-              name="password"
-              id="password"
-              required
-              placeholder="Please enter your password"
-            />
-          </div>
+          <label for="email">Email</label>
+          <input
+            type="email"
+            name="email"
+            id="email"
+            required
+            placeholder="Please enter your email"
+          />
+          <label for="password">Password</label>
+          <input
+            type="password"
+            name="password"
+            id="password"
+            required
+            placeholder="Please enter your password"
+          />
           <a href="#" class="box-link">LOG IN</a>
           <div class="signup-div">
             <p>NEED AN ACCOUNT ?</p>
