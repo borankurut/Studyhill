@@ -11,15 +11,125 @@
     />
     <title>STUDYHILL</title>
     <link rel="stylesheet" href="./css/style.css" />
+    <link rel="stylesheet" href="./css/index.css" />
   </head>
   <body>
-    <div class="container">
-      <h1 class="big-header hidden-header">STUDYHILL</h1>
-      <div class="box">
-        <a href="#" class="box-link hidden">self study</a>
-        <a href="#" class="box-link hidden">join a group</a>
-        <a href="#" class="box-link hidden">create a group</a>
-      </div>
+    <nav class="navbar">
+      <a href="/" class="brand">studyhill</a>
+      <ul class="nav-list hidden">
+        <li class="nav-list-item">
+          <a href="/" class="nav-link">Home</a>
+        </li>
+        <li class="nav-list-item">
+          <a href="/" class="nav-link">Log in</a>
+        </li>
+        <li class="nav-list-item">
+          <a href="/" class="nav-link">Sing UP</a>
+        </li>
+      </ul>
+      <button class="hamburger-button">
+        <div></div>
+        <div></div>
+        <div></div>
+      </button>
+    </nav>
+
+    <main class="container">
+      <section class="row">
+        <div class="col order-1 text-center">
+          <h1 class="big-header">
+            STUDYHILL is an online studying platform that you can study alone or
+            with your friends
+          </h1>
+        </div>
+        <div class="col order-2">
+          <img src="./img/qmm6mqqdw3k41.jpg" alt="moutain image" />
+        </div>
+      </section>
+      <section class="row">
+        <div class="col order-2">
+          <img src="./img/qmm6mqqdw3k41.jpg" alt="moutain image" />
+        </div>
+
+        <div class="col order-1 text-center">
+          <h1 class="big-header">
+            Create Study Session to study alone to set daily/weekly goals to
+            success
+          </h1>
+        </div>
+      </section>
+
+      <section class="row">
+        <div class="col order-1 text-center">
+          <h1 class="big-header">
+            Create Study Session to study with your friends
+          </h1>
+        </div>
+        <div class="col order-2">
+          <img src="./img/qmm6mqqdw3k41.jpg" alt="moutain image" />
+        </div>
+      </section>
+
+      <section class="row">
+        <div class="col order-2">
+          <img src="./img/qmm6mqqdw3k41.jpg" alt="moutain image" />
+        </div>
+
+        <div class="col order-1 text-center">
+          <h1 class="big-header">Compete with your friends while studying</h1>
+        </div>
+      </section>
+
+      <section class="row">
+        <div class="col order-1 text-center">
+          <h1 class="big-header">Look Up your improvement</h1>
+        </div>
+        <div class="col order-2">
+          <img src="./img/qmm6mqqdw3k41.jpg" alt="moutain image" />
+        </div>
+      </section>
+
+      <section class="row">
+        <div class="col order-2">
+          <img src="./img/qmm6mqqdw3k41.jpg" alt="moutain image" />
+        </div>
+
+        <div class="col order-1 text-center">
+          <h1 class="big-header">Get badges</h1>
+        </div>
+      </section>
+
+      <section class="row">
+        <div class="col text-center">
+          <button class="big-link" id="open-popup">
+            Let's Start Studying Now!
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <div class="pop-up hide-popup">
+      <button class="close" id="close-pop-up">
+        <div class="line-1"></div>
+        <div class="line-2"></div>
+      </button>
+      <form>
+        <label for="emain">Email</label>
+        <input
+          type="email"
+          name="email"
+          id="email"
+          placeholder="Enter email here"
+        />
+        <label for="password">Password</label>
+        <input
+          type="password"
+          name="password"
+          id="password"
+          placeholder="Enter password here"
+        />
+        <button type="submit">LOGIN</button>
+      </form>
     </div>
 
     <script src="./js/app.js"></script>

@@ -1,4 +1,14 @@
-/* Mobile First Design */
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;700&display=swap");
+
+:root {
+  --dark-blue: #161f30;
+  --dark-green: #173540;
+  --dark-gray: #3d3d3d;
+  --solid-white: white;
+  --weak-white: #d5d5d5;
+  --light-green: #217373;
+  --light-lemonyellow: #84b026;
+}
 
 * {
   padding: 0;
@@ -7,91 +17,7 @@
 }
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-.container {
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background-image: url("../img/qmm6mqqdw3k41.jpg");
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-  overflow: hidden;
-}
-
-.big-header {
-  font-size: 2.5rem;
-  font-weight: normal;
-  color: white;
-  text-shadow: 0 0.1rem 0.1rem white;
-  letter-spacing: 1rem;
-  line-height: 4;
-  text-align: center;
-  width: 100%;
-}
-
-.box {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.box-link {
-  font-size: 1.1rem;
-  font-weight: bold;
-  text-decoration: none;
-  color: #333;
-  background-color: #bec8db;
-  padding: 1rem 2rem;
-  border-radius: 1rem;
-  text-transform: uppercase;
-  text-align: center;
-}
-
-.box-link:hover {
-  transition: background-color 100ms ease-in;
-  background-color: white;
-}
-
-@media screen and (min-width: 993px) {
-  .big-header {
-    font-size: 5rem;
-    line-height: 3;
-  }
-  .box-link {
-    font-size: 1.5rem;
-  }
-}
-
-.hidden {
-  opacity: 0;
-  filter: blur(10px);
-  transform: translateY(100%);
-}
-
-.hidden-header {
-  opacity: 0;
-  filter: blur(10px);
-  transition: all 1s;
-}
-
-.hidden:nth-child(1) {
-  transition: all 500ms;
-}
-
-.hidden:nth-child(2) {
-  transition: all 700ms;
-}
-.hidden:nth-child(3) {
-  transition: all 900ms;
-}
-.show {
-  opacity: 1;
-  filter: blur(0);
-  transform: translateY(0);
+  font-family: "Open Sans", sans-serif;
+  background-color: var(--dark-blue);
+  color: var(--solid-white);
 }

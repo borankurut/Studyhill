@@ -1,9 +1,19 @@
-window.onload = () => {
-  const hiddenElements = document.querySelectorAll(".hidden");
-  hiddenElements.forEach((element) => {
-    element.classList.add("show");
-  });
+// Toggle Navbar
+const hamburgerButton = document.querySelector(".hamburger-button");
+hamburgerButton.addEventListener("click", () => {
+  const hiddenElement = document.querySelector(".hidden");
+  hiddenElement.classList.toggle("show");
+});
 
-  const hiddenHeader = document.querySelector(".hidden-header");
-  hiddenHeader.classList.add("show");
-};
+const closePopupButton = document.getElementById("close-pop-up");
+const openPopupButton = document.getElementById("open-popup");
+const popupDiv = document.querySelector(".hide-popup");
+
+closePopupButton.addEventListener("click", () => {
+  popupDiv.classList.remove("show-popup");
+});
+
+openPopupButton.addEventListener("click", () => {
+  console.log(popupDiv);
+  popupDiv.classList.add("show-popup");
+});
