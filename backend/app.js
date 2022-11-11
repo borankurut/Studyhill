@@ -45,12 +45,12 @@ app.post('/', (req, res) => {
 
 app.put('/signup', (req, res) => {
   const {email, username, password, passwordAgain} = req.body;
-  if(password === passwordAgain) {// other checks
+  if(password === passwordAgain) {// todo: other checks
     users.push(new User((Number(users[users.length - 1].id) + 1).toString(), email, username, password, '0'));
     res.status(200).send('succesfully added');
   }
   else
-    res.status(401).send('invalid arguments'); // other checks
+    res.status(401).send('invalid arguments'); // todo: other checks
 })
 
 app.listen(port, () =>{
