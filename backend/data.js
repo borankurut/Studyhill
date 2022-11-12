@@ -52,7 +52,7 @@ class Group {
       throw new Error('Group is full.');
   }
   
-  discardMember(user){
+  discardMember(user){  // todo: fix me.
     if(!this.members.includes(user))
       throw new Error('User is not in the group');
       
