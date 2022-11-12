@@ -52,7 +52,7 @@ class Group {
       throw new Error('Group is full.');
   }
   
-  discardMember(user){        // todo: handle when group size is 0
+  discardMember(user){
     if(!this.members.includes(user))
       throw new Error('User is not in the group');
       
@@ -62,6 +62,12 @@ class Group {
       this.admin = this.members[0];   // make the next user admin
 
     user.groupCode = '0';
+
+    // if group is empty delete it.
+    if(this.size === 0){
+      const ix = groups.indexOf(groups.find(g => g.code === this.code));
+      groups.splice(ix, 1);
+    }
   }
 
   static makeGroupCode(length = 4) {
@@ -77,7 +83,7 @@ class Group {
 }
 
 
-users.push(new User('erkutmail', 'erkut', 'erkut123', '0'));
+  users.push(new User('erkutmail', 'erkut', 'erkut123', '0'));
   users.push(new User('boranmail', 'boran', 'boran123', '0'));
   users.push(new User('batuhanmail', 'batuhan' ,'batuhan123', '0'));
   users.push(new User('kadirmail', 'kadir', 'kadir123', '0'));
@@ -86,9 +92,13 @@ users.push(new User('erkutmail', 'erkut', 'erkut123', '0'));
 g1 = new Group(users[0], 2);
 g2 = new Group(users[1], 3);
 
+
 groups.push(g1);
 groups.push(g2);
 
-console.log(g1, g2);
+console.log(groups);
+console.log('======================================================================================');
+users[0].leaveGroup();
+console.log(groups);
 
 module.exports = {users, groups, User, Group};
