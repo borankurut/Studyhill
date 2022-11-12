@@ -1,10 +1,11 @@
+const { groupCollapsed, group } = require('console');
 const express = require('express');
 
 const app = express();
 
 const path = require('path');
 
-const {users, Group, User} = require('./data.js');
+const {users, groups, Group, User} = require('./data.js');
 
 const {logger} = require('./logger.js');
 
@@ -19,7 +20,9 @@ app.use(express.urlencoded({extended: false}));
 app.use(express.json());
 
 app.get('/', (req, res) => {
-  res.json(users);
+  res.json({
+    'users': users,
+    'groups': groups});
 })
 
 app.post('/', (req, res) => {
@@ -52,6 +55,38 @@ app.put('/signup', (req, res) => {
   else
     res.status(401).send('invalid arguments'); // todo: other checks
 })
+
+app.put('/joingroup', (req, res) =>{
+  const {id, groupCode} = req.body;
+  const toJoin = groups.find((g) => g.code === groupCode);
+  if(!toJoin)
+    throw new Error('Invalid code');
+  
+  const user = users.find((u) => u.id === id);
+
+  if(!user)
+    throw new Error('Invalid id');
+  
+  user.joinGroup(toJoin.code);
+
+  res.status(200).send('added');
+})
+
+
+app.put('/creategroup', (req, res) =>{
+  const {id, maxSize} = req.body;
+
+  const user = users.find(u => u.id === id);
+  if(!user)
+    throw new Error('id is not valid');
+  
+  if(maxSize < 2 || maxSize > 8)
+    throw new Error('size is not valid');
+
+  groups.push(new Group(user, maxSize));
+  res.status(200).send('created');
+})
+
 
 app.listen(port, () =>{
   console.log('server is up');
