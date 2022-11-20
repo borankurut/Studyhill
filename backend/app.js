@@ -1,11 +1,10 @@
-const { groupCollapsed, group } = require('console');
 const express = require('express');
 
 const app = express();
 
 const path = require('path');
 
-const {users, groups, Group, User} = require('./data.js');
+const {users, groups, Group, User} = require('./backend.js');
 
 const {logger} = require('./logger.js');
 
@@ -48,17 +47,23 @@ app.post('/', (req, res) => {
 
 app.put('/signup', (req, res) => {
   const {email, username, password, passwordAgain} = req.body;
-  if(password === passwordAgain) {// todo: other checks
-    users.push(new User((Number(users[users.length - 1].id) + 1).toString(), email, username, password, '0'));
+  if(password !== passwordAgain)
+    res.status(401).send('invalid arguments'); 
+
+  try{
+    const user = new User(email, username, password);
+    users.push(user);
     res.status(200).send('succesfully added');
   }
-  else
-    res.status(401).send('invalid arguments'); // todo: other checks
+  catch(e){ // email exists or username exists.
+    res.status(401).send(e.toString());
+  }
+
 })
 
 app.put('/joingroup', (req, res) =>{
   const {id, groupCode} = req.body;
-  const toJoin = groups.find((g) => g.code === groupCode);
+  const toJoin = groups.find((g) => g.code === groupCode);  //todo: throw errors from backend.
   if(!toJoin)
     throw new Error('Invalid code');
   
@@ -78,7 +83,7 @@ app.put('/creategroup', (req, res) =>{
 
   const user = users.find(u => u.id === id);
   if(!user)
-    throw new Error('id is not valid');
+    throw new Error('id is not valid');   // todo: throw errors from backend and implement name.
   
   if(maxSize < 2 || maxSize > 8)
     throw new Error('size is not valid');
@@ -87,6 +92,7 @@ app.put('/creategroup', (req, res) =>{
   res.status(200).send('created');
 })
 
+//todo: necessery functions are gonna be async.
 
 app.listen(port, () =>{
   console.log('server is up');
