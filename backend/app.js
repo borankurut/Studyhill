@@ -8,6 +8,8 @@ const {users, groups, Group, User} = require('./backend.js');
 
 const {logger} = require('./logger.js');
 
+const {SendVerificationMail, decodeRegistrationToken, isEmailValid} = require('./mailVerification');
+
 const port = 3000;
 
 app.use(logger);
@@ -19,7 +21,7 @@ app.use(express.urlencoded({extended: false}));
 app.use(express.json());
 
 app.get('/', (req, res) => {
-  res.json({
+  return res.json({
     'users': users,
     'groups': groups});
 })
@@ -29,52 +31,75 @@ app.post('/', (req, res) => {
   
   console.log(emailOrUsername, password);
 
-  if(!emailOrUsername || !password){
-    res.status(401).send('please provide');
-    return;
-  }
+  if(!emailOrUsername || !password)
+    return res.status(400).send('please provide');
 
-  const valid = users.some((u) => 
+  const user = users.find((u) => 
   (u.email === emailOrUsername || u.username === emailOrUsername) 
   && u.password === password);
 
-  if(valid)
-    res.status(200).send('valid');
+  if(user){
+      if(user.verified)
+        return res.status(200).send('valid');
+      else 
+        return res.status(200).send('please verify your account.');
+    }
   else 
-    res.status(401).redirect('/');
-    
+    return res.status(400).send('Username or password is not valid.');
 })
 
-app.put('/signup', (req, res) => {
+app.put('/signup', async (req, res) => {
   const {email, username, password, passwordAgain} = req.body;
-  if(password !== passwordAgain)
-    res.status(401).send('invalid arguments'); 
+  const {valid, reason, validators} = await isEmailValid(email);
+
+  if(password !== passwordAgain)      // passwords not match
+    return res.status(400).send('passwords not match.'); 
+
+
+  if (!valid)
+      return res.status(400).send({      // email adress is not valid.
+      message: "Please provide a valid email address.",
+      reason: validators[reason].reason});
 
   try{
     const user = new User(email, username, password);
     users.push(user);
-    res.status(200).send('succesfully added');
+    SendVerificationMail(user);
+    return res.status(200).send('Waiting verification.');
   }
   catch(e){ // email exists or username exists.
-    res.status(401).send(e.toString());
+    return res.status(403).send(e.toString());
   }
 
 })
 
+app.get('/verify', function(req, res) {
+  try{
+    const token = req.query.id;
+    const {userId} = decodeRegistrationToken(token);
+    console.log(userId);
+    users.find(u => u.id === userId).verified = true;
+    return res.status(200).send('verified.');
+  }
+  catch(e){
+    return res.status(400).send(e);
+  }
+});
+
 app.put('/joingroup', (req, res) =>{
   const {id, groupCode} = req.body;
-  const toJoin = groups.find((g) => g.code === groupCode);  //todo: throw errors from backend.
+  const toJoin = groups.find((g) => g.code === groupCode);
   if(!toJoin)
-    throw new Error('Invalid code');
+    return res.status(400).send('Invalid Code');
   
   const user = users.find((u) => u.id === id);
 
   if(!user)
-    throw new Error('Invalid id');
+    return res.status(400).send('Invalid id');
   
   user.joinGroup(toJoin.code);
 
-  res.status(200).send('added');
+  return res.status(200).send('added');
 })
 
 
@@ -83,13 +108,13 @@ app.put('/creategroup', (req, res) =>{
 
   const user = users.find(u => u.id === id);
   if(!user)
-    throw new Error('id is not valid');   // todo: throw errors from backend and implement name.
+    return res.status(400).send('Id is not valid.');
   
   if(maxSize < 2 || maxSize > 8)
-    throw new Error('size is not valid');
+    return res.status(400).send('size is not valid');
 
   groups.push(new Group(user, maxSize));
-  res.status(200).send('created');
+  return res.status(200).send('created');
 })
 
 //todo: necessery functions are gonna be async.

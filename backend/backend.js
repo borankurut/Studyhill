@@ -20,6 +20,7 @@ class User {
     this.username = username;
     this.password = password; 
     this.groupCode = '0';
+    this.verified = false;
   }
 
   joinGroup(groupCode){
@@ -88,11 +89,10 @@ class Group {
   }
 
   static makeGroupCode(length = 4) {
-    var result           = '';
-    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    var charactersLength = characters.length;
-    for ( var i = 0; i < length; i++ ) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    let result = '';
+    let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    for (let i = 0; i < length; ++i) {
+        result += characters[Math.floor(Math.random() * characters.length)];
     }
     return result;
   }
@@ -102,7 +102,7 @@ class Group {
   }
 }
 
-  users.push(new User('erkutmail', 'erkut', 'erkut123'));
+  //users.push(new User('erkutmail', 'erkut', 'erkut123'));
   users.push(new User('boranmail', 'boran', 'boran123'));
   users.push(new User('batuhanmail', 'batuhan' ,'batuhan123'));
   users.push(new User('kadirmail', 'kadir', 'kadir123'));
