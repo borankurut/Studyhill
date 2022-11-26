@@ -1,22 +1,27 @@
-import Navbar from "./Components/Navbar.js";
-import Home from "./Components/Home.js";
-import Footer from "./Components/Footer.js";
+import { Route, Routes, NavLink } from "react-router-dom";
+import HomePage from "./components/HomePage.js";
+import StudyPage from "./components/StudyPage.js";
+import AvatarPage from "./components/AvatarPage.js";
+import ErrorPage from "./components/ErrorPage.js";
+import GroupProfilePage from "./components/GroupProfilePage.js";
+import UserProfilePage from "./components/UserProfilePage.js";
+import Login from "./components/Login";
+import SignUp from "./components/SignUp";
 
 function App() {
-  document.body.classList.add(
-    "h-screen",
-    "dark:text-white",
-    "dark:bg-slate-700",
-    "bg-slate-100"
-  );
+  document.body.classList.add("bg-body-dark", "text-white");
 
-  // Add some styling to body tag
   return (
-    <>
-      <Navbar />
-      <Home />
-      <Footer />
-    </>
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/study-page" element={<StudyPage />} />
+      <Route path="/avatar" element={<AvatarPage />} />
+      <Route path="/profile-user" element={<UserProfilePage />} />
+      <Route path="/profile-group" element={<GroupProfilePage />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/sign-up" element={<SignUp />} />
+      <Route path="*" element={<ErrorPage />} />
+    </Routes>
   );
 }
 
