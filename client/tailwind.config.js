@@ -6,6 +6,7 @@ module.exports = {
       colors: {
         "body-dark": "#1A1A2E",
         "navbar-dark": "#0F3460",
+        "yellow-avatar": "#D6CDA4",
       },
     },
   },

@@ -6,7 +6,7 @@ function HomePage() {
       <header className="bg-navbar-dark p-6 rounded-sm flex items-center justify-between">
         <NavLink
           to="/"
-          className="text-base md:text-lg lg:text-xl xl:text-2xl tracking-wider font-sans font-semibold"
+          className="text-base md:text-lg lg:text-xl xl:text-2xl tracking-[4px] font-sans font-semibold"
         >
           STUDYHILL
         </NavLink>
