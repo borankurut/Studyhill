@@ -23,4 +23,4 @@ const sendVerificationMail = function(user){
       console.log('Sent: ' + info.response);
   });
 }
-module.exports = {sendVerificationMail, decodeRegistrationToken, isEmailValid};
+module.exports = {sendVerificationMail, decodeRegistrationToken};

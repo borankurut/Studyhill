@@ -51,12 +51,7 @@ app.put('/signup', async (req, res) => {
   const {email, username, password, passwordAgain} = req.body;
 
   if(password !== passwordAgain)      // passwords not match
-    return res.status(400).send('passwords not match.'); 
-
-  if (!valid)
-      return res.status(400).send({      // email adress is not valid.
-      message: "Please provide a valid email address.",
-      reason: validators[reason].reason});
+    return res.status(400).send('passwords do not match.'); 
 
   try{
     const user = new User(email, username, encodePassword(password));

@@ -20,7 +20,7 @@ class User {
     //
     this.email = email;
     this.username = username;
-    this.password = password; 
+    this.password = password;
     this.groupCode = '0';
     this.verified = false;
     this.tasksData = [];
@@ -101,9 +101,9 @@ class Group {
     }
   }
 
-  static makeGroupCode(length = 4) {
+  static makeGroupCode(length = 6) {
     let result = '';
-    let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let characters = '0123456789';
     for (let i = 0; i < length; ++i) {
         result += characters[Math.floor(Math.random() * characters.length)];
     }
