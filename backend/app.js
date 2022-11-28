@@ -4,11 +4,12 @@ const app = express();
 
 const path = require('path');
 
-const {users, groups, Group, User} = require('./backend.js');
+const {users, groups, Group, User} = require('./userAndGroup.js');
 
 const {logger} = require('./logger.js');
 
-const {SendVerificationMail, decodeRegistrationToken, isEmailValid} = require('./mailVerification');
+const {sendVerificationMail, decodeRegistrationToken, isEmailValid} = require('./mailVerification');
+const {encodePassword, decodePassword} = require('./encodeAndDecode');
 
 const port = 3000;
 
@@ -28,33 +29,29 @@ app.get('/', (req, res) => {
 
 app.post('/', (req, res) => {
   const {emailOrUsername, password} = req.body;
-  
-  console.log(emailOrUsername, password);
 
   if(!emailOrUsername || !password)
-    return res.status(400).send('please provide');
+    return res.status(400).send('please provide');  // username or password empty.
 
   const user = users.find((u) => 
   (u.email === emailOrUsername || u.username === emailOrUsername) 
-  && u.password === password);
+  && decodePassword(u.password) === password);  // find user matches the input.
 
-  if(user){
-      if(user.verified)
+  if(user){ // user found.
+      if(user.verified) 
         return res.status(200).send('valid');
       else 
         return res.status(200).send('please verify your account.');
     }
-  else 
+  else // user not found.
     return res.status(400).send('Username or password is not valid.');
 })
 
 app.put('/signup', async (req, res) => {
   const {email, username, password, passwordAgain} = req.body;
-  const {valid, reason, validators} = await isEmailValid(email);
 
   if(password !== passwordAgain)      // passwords not match
     return res.status(400).send('passwords not match.'); 
-
 
   if (!valid)
       return res.status(400).send({      // email adress is not valid.
@@ -62,27 +59,29 @@ app.put('/signup', async (req, res) => {
       reason: validators[reason].reason});
 
   try{
-    const user = new User(email, username, password);
+    const user = new User(email, username, encodePassword(password));
     users.push(user);
-    SendVerificationMail(user);
+    sendVerificationMail(user);
     return res.status(200).send('Waiting verification.');
   }
   catch(e){ // email exists or username exists.
     return res.status(403).send(e.toString());
   }
-
 })
 
 app.get('/verify', function(req, res) {
   try{
     const token = req.query.id;
-    const {userId} = decodeRegistrationToken(token);
-    console.log(userId);
-    users.find(u => u.id === userId).verified = true;
+    const {userId, expired} = decodeRegistrationToken(token);  // decode the given url to find user id.
+    if(expired){
+      console.log('expired');
+      throw new Error('this verification link is expired.');
+    }
+    users.find(u => u.id === userId).verified = true; // make the user verified.
     return res.status(200).send('verified.');
   }
   catch(e){
-    return res.status(400).send(e);
+    return res.status(400).send(e.toString());
   }
 });
 
