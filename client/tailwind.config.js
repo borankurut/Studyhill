@@ -8,6 +8,9 @@ module.exports = {
         "navbar-dark": "#0F3460",
         "yellow-avatar": "#D6CDA4",
       },
+      backgroundImage: {
+        "mountain-agri": "url('../public/img/mountain_agri.jpg')",
+      },
     },
   },
   plugins: [],
