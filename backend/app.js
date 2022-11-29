@@ -4,16 +4,12 @@ const app = express();
 
 const path = require("path");
 
-const { users, groups, Group, User } = require("./userAndGroup.js");
+const {users, groups, Group, User} = require("./userAndGroup.js");
 
-const { logger } = require("./logger.js");
+const {logger} = require("./logger.js");
 
-const {
-  sendVerificationMail,
-  decodeRegistrationToken,
-  isEmailValid,
-} = require("./mailVerification");
-const { encodePassword, decodePassword } = require("./encodeAndDecode");
+const {sendVerificationMail,decodeRegistrationToken} = require("./mailVerification");
+const {cryptPassword, comparePassword} = require("./encodeAndDecode");
 
 const port = 3001;
 
@@ -35,43 +31,41 @@ app.get("/api", (req, res) => {
   return res.json({ users: ["Erkut", "Batuhan", "Boran", "Enes", "Kadir"] });
 });
 
-app.post("/", (req, res) => {
-  const { emailOrUsername, password } = req.body;
+app.post('/', async (req, res) => {
+  const {email, password} = req.body;
 
-  if (!emailOrUsername || !password)
-    return res.status(400).send("please provide"); // username or password empty.
+  if(!email || !password)
+    return res.status(400).send('please provide');  // username or password empty.
 
-  const user = users.find(
-    (u) =>
-      (u.email === emailOrUsername || u.username === emailOrUsername) &&
-      decodePassword(u.password) === password
-  ); // find user matches the input.
+  const user = users.find((u) => u.email === email);
 
-  if (user) {
-    // user found.
-    if (user.verified) return res.status(200).send("valid");
-    else return res.status(200).send("please verify your account.");
-  } // user not found.
-  else return res.status(400).send("Username or password is not valid.");
-});
+  if(user && await comparePassword(password, user.password)){ // user found and pass is valid.
+      if(user.verified) 
+        return res.status(200).send('valid');
+      else 
+        return res.status(200).send('please verify your account.');
+    }
+  else // user not found or password is not valid.
+    return res.status(400).send('Username or password is not valid.');
+})
 
-app.put("/signup", async (req, res) => {
-  const { email, username, password, passwordAgain } = req.body;
 
-  if (password !== passwordAgain)
-    // passwords not match
-    return res.status(400).send("passwords do not match.");
+app.put('/signup', async (req, res) => {
+  const {email, username, password, passwordAgain} = req.body;
 
-  try {
-    const user = new User(email, username, encodePassword(password));
+  if(password !== passwordAgain)      // passwords not match
+    return res.status(400).send('passwords do not match.'); 
+
+  try{
+    const user = new User(email, username, await cryptPassword(password));
     users.push(user);
     sendVerificationMail(user);
-    return res.status(200).send("Waiting verification.");
-  } catch (e) {
-    // email exists or username exists.
+    return res.status(200).send('Waiting verification.');
+  }
+  catch(e){ // email exists or username exists.
     return res.status(403).send(e.toString());
   }
-});
+})
 
 app.get("/verify", function (req, res) {
   try {
@@ -114,8 +108,6 @@ app.put("/creategroup", (req, res) => {
   groups.push(new Group(user, maxSize));
   return res.status(200).send("created");
 });
-
-//todo: necessery functions are gonna be async.
 
 app.listen(port, () => {
   console.log(`Server is up and running on port ${port}`);
