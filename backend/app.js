@@ -13,6 +13,27 @@ const {cryptPassword, comparePassword} = require("./encodeAndDecode");
 
 const port = 3001;
 
+//Kadir MySQL - Start
+
+const mysql = require("mysql");
+
+const db = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: '1234',
+  database: 'snow-login'
+});
+
+db.connect( (error) => {
+  if(error) {
+    console.log(error);
+  } else {
+    console.log("MySQL connected...");
+  }
+});
+
+//Kadir MySQL - Finish
+
 app.use(logger);
 
 app.use(express.static(path.join(__dirname, "public")));
