@@ -17,9 +17,9 @@ function UserProfilePage() {
   const weeklyGoal = 4;
 
   const weeks = {
-    Monday: 8,
+    Monday: 4,
     Tuesday: 6,
-    Wednesday: 3,
+    Wednesday: 5,
     Thursday: 5,
     Friday: 6,
     Saturday: 3,
