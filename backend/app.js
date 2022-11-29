@@ -80,6 +80,13 @@ app.put('/signup', async (req, res) => {
   try{
     const user = new User(email, username, await cryptPassword(password));
     users.push(user);
+    //mysql deneme
+    db.query('INSERT INTO users SET ?', {username: user.username, email: user.email, password: user.password}, (error, results) =>{
+      if(error) {
+          console.log(error);
+      } 
+  })
+    //deneme finish
     sendVerificationMail(user);
     return res.status(200).send('Waiting verification.');
   }
