@@ -10,9 +10,6 @@ function UserProfilePage() {
     "Jog for half an hour",
     "Join the scrum",
     "Study Software Engineering Lecture for 2 hours",
-    "Study Programming Languages Lecture for 2 hours",
-    "Read a book for 1 hour",
-    "Watch Movie",
   ];
   const weeklyGoal = 4;
 
