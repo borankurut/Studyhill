@@ -9,8 +9,6 @@ function HomePage() {
     .then((response) => response.json)
     .then((responseData) => setData(responseData));
 
-  return <>{typeof data === "undefined" ? <></> : <p>{data}</p>}</>;
-
   return (
     <div className="container mx-auto">
       <header className="bg-navbar-dark p-6 rounded-sm flex items-center justify-between">
