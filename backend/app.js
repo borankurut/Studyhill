@@ -21,7 +21,7 @@ const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: '1234',
-  database: 'snow-login'
+  database: 'snow-login' //MySQL açık değilse burada hata verebilir. Bu satır comment edilirse hata gider.
 });
 
 db.connect( (error) => {
