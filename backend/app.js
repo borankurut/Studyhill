@@ -113,10 +113,17 @@ app.put('/signup', async (req, res) => {
             console.log(error);
         } 
       })
-      return res.status(200).send('Waiting verification.');
+
+      db.query('SELECT * FROM users WHERE email = ?', [email], async (error, results) => {
+        console.log(results[0].id);
+        sendVerificationMail(user.email, results[0].id);  // TODO: Fix mail address.        
+        return res.status(200).send('Waiting verification.');
+      });
+
+      
     })
 
-    //sendVerificationMail(user); TODO: Fix mail address.
+    
   
 })
 
@@ -128,7 +135,16 @@ app.get("/verify", function (req, res) {
       console.log("expired");
       throw new Error("this verification link is expired.");
     }
-    users.find((u) => u.id === userId).verified = true; // make the user verified.
+    
+    db.query('UPDATE users SET verified = 1 WHERE id = ?', [userId], (error, results) =>{
+        if(error) {
+            console.log(error);
+        } 
+    })
+    
+    
+    //users.find((u) => u.id === userId).verified = true; // make the user verified.
+
     return res.status(200).send("verified.");
   } catch (e) {
     return res.status(400).send(e.toString());

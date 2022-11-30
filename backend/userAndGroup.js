@@ -18,7 +18,7 @@ class User {
     }while(users.some(u => u.id === this.id));
 
     */
-
+    this.id = 2; //to be deleted !!!!!!
     this.email = email;
     this.username = username;
     this.password = password;

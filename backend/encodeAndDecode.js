@@ -1,12 +1,12 @@
 const secretKey = 'ufwdjsla';
 
-function encodeRegistrationToken(user)
+function encodeRegistrationToken(userID)
 {
     // jsonweb automatically adds a key that determines the time, but you can use any module
     const jwt = require('jsonwebtoken');
 
     // The information we need to find our user in the database (not sensible info)
-    let info = {id: user.id};
+    let info = {id: userID};
 
     // The hash we will be sending to the user
     const token = jwt.sign(info, secretKey);
