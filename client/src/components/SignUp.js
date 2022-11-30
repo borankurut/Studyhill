@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 function SignUp() {
   return (
     <div className="container mx-auto h-screen w-screen flex flex-col items-center justify-center">
-      <div className="text-center bg-navbar-dark p-16 md:p-24 shadow-md shadow-navbar-dark">
-        <h1 className="font-sans font-semibold text-xl md:text-2xl lg:text-3xl xl:text-4xl tracking-widest mb-8">
+      <div className="text-center bg-navbar-dark py-8 px-12 shadow-md shadow-navbar-dark rounded-md">
+        <h1 className="font-sans font-semibold text-sm md:text-base lg:text-lg xl:text-xl tracking-widest mb-8">
           STUDYHILL SIGN UP
         </h1>
         <form
@@ -17,25 +17,25 @@ function SignUp() {
             type="email"
             required
             placeholder="Please enter your email"
-            className="text-black w-full p-2 outline-navbar-dark text-sm md:text-base lg:text-lg xl:text-xl rounded-sm"
+            className="text-black w-full p-2 outline-navbar-dark text-xs md:text-sm lg:text-base xl:text-lg rounded-sm"
           />
           <input
             name="password"
             type="password"
             required
             placeholder="Please enter your password"
-            className="text-black w-full p-2 outline-navbar-dark text-sm md:text-base lg:text-lg xl:text-xl rounded-sm"
+            className="text-black w-full p-2 outline-navbar-dark text-xs md:text-sm lg:text-base xl:text-lg rounded-sm"
           />
           <input
             name="password"
             type="password"
             required
-            placeholder="Please re-enter your password"
-            className="text-black w-full p-2 outline-navbar-dark text-sm md:text-base lg:text-lg xl:text-xl rounded-sm"
+            placeholder="Please confirm your password"
+            className="text-black w-full p-2 outline-navbar-dark text-xs md:text-sm lg:text-base xl:text-lg rounded-sm"
           />
           <button
             type="submit"
-            className="text-navbar-dark bg-white py-4 px-6 font-bold text-base md:text-lg lg:text-xl xl:text-2xl rounded-md hover:bg-slate-200 transition duration-150 ease-in"
+            className="text-navbar-dark bg-white py-4 px-6 font-bold text-xs md:text-sm lg:text-base xl:text-lg rounded-md hover:bg-slate-200 transition duration-150 ease-in"
           >
             SIGN UP
           </button>

@@ -6,20 +6,20 @@ function HomePage() {
       <header className="bg-navbar-dark p-6 rounded-sm flex items-center justify-between">
         <NavLink
           to="/"
-          className="text-base md:text-lg lg:text-xl xl:text-2xl tracking-[4px] font-sans font-semibold"
+          className="text-base md:text-lg lg:text-xl xl:text-2xl tracking-widest font-sans font-semibold"
         >
           STUDYHILL
         </NavLink>
-        <nav className="flex items-center justify-center gap-6">
+        <nav className="flex items-center justify-center gap-2">
           <NavLink
             to="/sign-up"
-            className="p-2 md:px-4 md:py-3 border-2 border-white bg-transparent hover:text-slate-200 hover:border-slate-200 text-sm md:text-base lg:text-lg xl:text-xl rounded-xl font-semibold transition duration-150 ease-in"
+            className="p-2 border-2 border-white bg-transparent hover:text-slate-200 hover:border-slate-200 text-xs md:text-sm lg:text-base xl:text-lg rounded-xl font-semibold transition duration-150 ease-in"
           >
             Sign Up
           </NavLink>
           <NavLink
             to="/login"
-            className="p-2 md:px-4 md:py-3 border-2 border-white bg-transparent hover:text-slate-200 hover:border-slate-200 text-sm md:text-base lg:text-lg xl:text-xl rounded-xl font-semibold transition duration-150 ease-in"
+            className="p-2 border-2 border-white bg-transparent hover:text-slate-200 hover:border-slate-200 text-xs md:text-sm lg:text-base xl:text-lg rounded-xl font-semibold transition duration-150 ease-in"
           >
             Log In
           </NavLink>
@@ -77,7 +77,7 @@ function HomePage() {
             </p>
             <NavLink
               to="/login"
-              className="p-4 bg-red-500 rounded-xl font-semibold font-sans tracking-widest hover:bg-red-600 transition duration-150 ease-in"
+              className="text-sm md:text-base lg:text-lg xl:text-xl p-4 font-semibold font-sans tracking-widest rounded-xl bg-red-500 hover:bg-red-600 transition duration-150 ease-in"
             >
               STUDY NOW
             </NavLink>
@@ -91,16 +91,13 @@ function HomePage() {
         </section>
       </main>
 
-      <footer className="bg-navbar-dark flex flex-col items-center justify-center p-8 md:p-10 lg:p-12 xl:p-14 rounded-sm">
+      <footer className="bg-navbar-dark flex flex-col items-center justify-center p-8 rounded-sm">
         <div className="text-center">
-          <p className="text-base md:text-lg lg:text-xl xl:text-2xl">
+          <p className="text-sm md:text-base lg:text-lg xl:text-xl">
             Studyhill, 2022
           </p>
-          <p className="text-base md:text-lg lg:text-xl xl:text-2xl">
+          <p className="text-sm md:text-base lg:text-lg xl:text-xl">
             Company &copy; SNOWHILL
-          </p>
-          <p className="font-semibold text-sm md:text-base lg:text-lg xl:text-xl">
-            All rights reserved
           </p>
         </div>
       </footer>

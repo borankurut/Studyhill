@@ -4,12 +4,15 @@ const app = express();
 
 const path = require("path");
 
-const {users, groups, Group, User} = require("./userAndGroup.js");
+const { users, groups, Group, User } = require("./userAndGroup.js");
 
-const {logger} = require("./logger.js");
+const { logger } = require("./logger.js");
 
-const {sendVerificationMail,decodeRegistrationToken} = require("./mailVerification");
-const {cryptPassword, comparePassword} = require("./encodeAndDecode");
+const {
+  sendVerificationMail,
+  decodeRegistrationToken,
+} = require("./mailVerification");
+const { cryptPassword, comparePassword } = require("./encodeAndDecode");
 
 const port = 3001;
 
@@ -18,14 +21,14 @@ const port = 3001;
 const mysql = require("mysql");
 
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '1234',
-  database: 'snowhill' //MySQL açık değilse burada hata verebilir. Bu satır comment edilirse hata gider.
+  host: "localhost",
+  user: "root",
+  password: "1234",
+  database: "snowhill", //MySQL açık değilse burada hata verebilir. Bu satır comment edilirse hata gider.
 });
 
-db.connect( (error) => {
-  if(error) {
+db.connect((error) => {
+  if (error) {
     console.log(error);
   } else {
     console.log("MySQL connected...");
@@ -42,90 +45,103 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(express.json());
 
- app.get('/', (req, res) => {
-   return res.json({
-     'users': users,
-     'groups': groups});
- })
+// cors library are required for communication between client
+// server, which is port 3000, and backend server, port 3001.
+const cors = require("cors");
+app.use(cors());
 
-app.get("/api", (req, res) => {
-  return res.json({ users: ["Erkut", "Batuhan", "Boran", "Enes", "Kadir"] });
+app.get("/", (req, res) => {
+  return res.json({
+    users: users,
+    groups: groups,
+  });
 });
 
-app.post('/', async (req, res) => {
-  const {email, password} = req.body;
+app.post("/", async (req, res) => {
+  const { email, password } = req.body;
 
-  if(!email || !password)
-    return res.status(400).send('please provide');  // username or password empty.
+  if (!email || !password) return res.status(400).send("please provide"); // username or password empty.
 
   //const user = users.find((u) => u.email === email);
-  db.query('SELECT * FROM users WHERE email = ?', [email], async (error, results) => {
-    
-    if(error) {
-      console.log(error);
-      return res.status(400).send(error.toString());
-    }
-
-    if(!results[0] || await !(comparePassword(password, results[0].password))){
-       // user not found
-      return res.status(400).send('Username or password is not valid.');
-    }
-    const isUserVerified = results[0].verified;
-
-     // user found and pass is valid.
-      if(isUserVerified) 
-        return res.status(200).send('valid');
-      else 
-        return res.status(200).send('please verify your account.');
-   
-     // user not found or password is not valid.
-    
-
-  });
-
-})
-
-
-app.put('/signup', async (req, res) => {
-  const {email, username, password, passwordAgain} = req.body;
-
-  if(password !== passwordAgain)      // passwords not match
-    return res.status(400).send('passwords do not match.'); 
-
-
-    const user = new User(email, username, await cryptPassword(password));
-    //users.push(user);
-    //mysql REGISTER
-    
-    db.query('SELECT email FROM users WHERE email = ?', [email], async (error,result) => {
-      if(error) {
+  db.query(
+    "SELECT * FROM users WHERE email = ?",
+    [email],
+    async (error, results) => {
+      if (error) {
         console.log(error);
         return res.status(400).send(error.toString());
       }
 
-      if(result.length > 0) {
+      if (
+        !results[0] ||
+        (await !comparePassword(password, results[0].password))
+      ) {
+        // user not found
+        return res.status(400).send("Username or password is not valid.");
+      }
+      const isUserVerified = results[0].verified;
+
+      // user found and pass is valid.
+      if (isUserVerified) return res.status(200).send("valid");
+      else return res.status(200).send("please verify your account.");
+
+      // user not found or password is not valid.
+    }
+  );
+});
+
+app.put("/signup", async (req, res) => {
+  const { email, username, password, passwordAgain } = req.body;
+
+  if (password !== passwordAgain)
+    // passwords not match
+    return res.status(400).send("passwords do not match.");
+
+  const user = new User(email, username, await cryptPassword(password));
+  //users.push(user);
+  //mysql REGISTER
+
+  db.query(
+    "SELECT email FROM users WHERE email = ?",
+    [email],
+    async (error, result) => {
+      if (error) {
+        console.log(error);
+        return res.status(400).send(error.toString());
+      }
+
+      if (result.length > 0) {
         return res.status(400).send("Email is already in use!");
-      } 
-      
-      db.query('INSERT INTO users SET ?', {username: user.username, email: user.email, 
-        password: user.password, groupCode: user.groupCode, verified: user.verified}, (error, results) =>{
-        if(error) {
+      }
+
+      db.query(
+        "INSERT INTO users SET ?",
+        {
+          username: user.username,
+          email: user.email,
+          password: user.password,
+          groupCode: user.groupCode,
+          verified: user.verified,
+        },
+        (error, results) => {
+          if (error) {
             console.log(error);
-        } 
-      })
+          }
+        }
+      );
 
-      db.query('SELECT * FROM users WHERE email = ?', [email], async (error, results) => {
-        console.log(results[0].id);
-        sendVerificationMail(user.email, results[0].id);  // TODO: Fix mail address.        
-        return res.status(200).send('Waiting verification.');
-      });
-
-      
-    })
-
-    
-  
-})
+      db.query(
+        "SELECT * FROM users WHERE email = ?",
+        [email],
+        async (error, results) => {
+          console.log(results[0].id);
+          sendVerificationMail(user.email, results[0].id); // TODO: Fix mail address.
+          return res.status(200).send("Waiting verification.");
+        }
+      );
+    }
+  );
+});
 
 app.get("/verify", function (req, res) {
   try {
@@ -135,14 +151,17 @@ app.get("/verify", function (req, res) {
       console.log("expired");
       throw new Error("this verification link is expired.");
     }
-    
-    db.query('UPDATE users SET verified = 1 WHERE id = ?', [userId], (error, results) =>{
-        if(error) {
-            console.log(error);
-        } 
-    })
-    
-    
+
+    db.query(
+      "UPDATE users SET verified = 1 WHERE id = ?",
+      [userId],
+      (error, results) => {
+        if (error) {
+          console.log(error);
+        }
+      }
+    );
+
     //users.find((u) => u.id === userId).verified = true; // make the user verified.
 
     return res.status(200).send("verified.");
@@ -177,6 +196,67 @@ app.put("/creategroup", (req, res) => {
   groups.push(new Group(user, maxSize));
   return res.status(200).send("created");
 });
+
+//============================================================================
+
+/*
+ *
+ * ███████╗████████╗██╗   ██╗██████╗
+ * ██╔════╝╚══██╔══╝██║   ██║██╔══██╗
+ * ███████╗   ██║   ██║   ██║██████╔╝
+ * ╚════██║   ██║   ██║   ██║██╔══██╗
+ * ███████║   ██║   ╚██████╔╝██████╔╝
+ * ╚══════╝   ╚═╝    ╚═════╝ ╚═════╝
+ *
+ * Login Post method will be handled by this function. But for now its is here to just debugging
+ * front-end login page.
+ *
+ */
+
+app.post("/login", (req, res) => {
+  // Print request body for debugging.
+  console.log(req.body);
+
+  // There must be some checking that whether email given exists
+  // or not, which is job of backend, that i will skip for now.
+  // _________ _______  ______   _______
+  // \__   __/(  ___  )(  __  \ (  ___  )
+  //    ) (   | (   ) || (  \  )| (   ) |
+  //    | |   | |   | || |   ) || |   | |
+  //    | |   | |   | || |   | || |   | |
+  //    | |   | |   | || |   ) || |   | |
+  //    | |   | (___) || (__/  )| (___) |
+  //    )_(   (_______)(______/ (_______)
+
+  // Returning response to client
+  // -----------------------------
+  // An object that has informations of the user, if that user exists,
+  // and verification value, that can be eighter true or false.
+  // Front-end will process respect to the verification.
+  // If verification is true, then client will been navigate to profile page.
+  // Else there will be an alert that there is no such user exists to client
+  const user = {
+    verification: true,
+    tasks: [
+      "Study Software Engineering lecture for 2 hours",
+      "Read a book for 1 hour",
+    ],
+    weeklyGoal: 5,
+    weeklyHours: {
+      monday: 4,
+      tuesday: 3,
+      wednesday: 5,
+      thursday: 3,
+      friday: 6,
+      saturday: 4,
+      sunday: 1,
+    },
+    badgesEarned: ["badge1", "badge2", "badge3", "badge4"],
+  }; // These are what i remember. Of course we can add more information to send
+  res.json(user); // Send user in JSON format as response to client.
+});
+
+//============================================================================
 
 app.listen(port, () => {
   console.log(`Server is up and running on port ${port}`);
