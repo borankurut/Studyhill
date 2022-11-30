@@ -21,7 +21,7 @@ const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: '1234',
-  database: 'snow-login' //MySQL açık değilse burada hata verebilir. Bu satır comment edilirse hata gider.
+  database: 'snowhill' //MySQL açık değilse burada hata verebilir. Bu satır comment edilirse hata gider.
 });
 
 db.connect( (error) => {
@@ -42,11 +42,11 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(express.json());
 
-// app.get('/', (req, res) => {
-//   return res.json({
-//     'users': users,
-//     'groups': groups});
-// })
+ app.get('/', (req, res) => {
+   return res.json({
+     'users': users,
+     'groups': groups});
+ })
 
 app.get("/api", (req, res) => {
   return res.json({ users: ["Erkut", "Batuhan", "Boran", "Enes", "Kadir"] });
@@ -58,16 +58,31 @@ app.post('/', async (req, res) => {
   if(!email || !password)
     return res.status(400).send('please provide');  // username or password empty.
 
-  const user = users.find((u) => u.email === email);
+  //const user = users.find((u) => u.email === email);
+  db.query('SELECT * FROM users WHERE email = ?', [email], async (error, results) => {
+    
+    if(error) {
+      console.log(error);
+      return res.status(400).send(error.toString());
+    }
 
-  if(user && await comparePassword(password, user.password)){ // user found and pass is valid.
-      if(user.verified) 
+    if(!results[0] || await !(comparePassword(password, results[0].password))){
+       // user not found
+      return res.status(400).send('Username or password is not valid.');
+    }
+    const isUserVerified = results[0].verified;
+
+     // user found and pass is valid.
+      if(isUserVerified) 
         return res.status(200).send('valid');
       else 
         return res.status(200).send('please verify your account.');
-    }
-  else // user not found or password is not valid.
-    return res.status(400).send('Username or password is not valid.');
+   
+     // user not found or password is not valid.
+    
+
+  });
+
 })
 
 
@@ -77,22 +92,32 @@ app.put('/signup', async (req, res) => {
   if(password !== passwordAgain)      // passwords not match
     return res.status(400).send('passwords do not match.'); 
 
-  try{
+
     const user = new User(email, username, await cryptPassword(password));
-    users.push(user);
-    //mysql deneme
-    db.query('INSERT INTO users SET ?', {username: user.username, email: user.email, password: user.password}, (error, results) =>{
+    //users.push(user);
+    //mysql REGISTER
+    
+    db.query('SELECT email FROM users WHERE email = ?', [email], async (error,result) => {
       if(error) {
-          console.log(error);
+        console.log(error);
+        return res.status(400).send(error.toString());
+      }
+
+      if(result.length > 0) {
+        return res.status(400).send("Email is already in use!");
       } 
-  })
-    //deneme finish
-    sendVerificationMail(user);
-    return res.status(200).send('Waiting verification.');
-  }
-  catch(e){ // email exists or username exists.
-    return res.status(403).send(e.toString());
-  }
+      
+      db.query('INSERT INTO users SET ?', {username: user.username, email: user.email, 
+        password: user.password, groupCode: user.groupCode, verified: user.verified}, (error, results) =>{
+        if(error) {
+            console.log(error);
+        } 
+      })
+      return res.status(200).send('Waiting verification.');
+    })
+
+    //sendVerificationMail(user); TODO: Fix mail address.
+  
 })
 
 app.get("/verify", function (req, res) {

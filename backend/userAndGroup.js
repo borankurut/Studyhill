@@ -5,7 +5,7 @@ const {Task} = require('./task.js');
 
 class User {
   constructor(email, username, password){
-    // check mail and username
+    /* check mail and username
     if(User.doesEmailExist(email))
       throw new Error('Email exists.');
     if(User.doesUsernameExist(username))
@@ -17,7 +17,8 @@ class User {
       this.id = this.id.toString();
     }while(users.some(u => u.id === this.id));
 
-    //
+    */
+
     this.email = email;
     this.username = username;
     this.password = password;
