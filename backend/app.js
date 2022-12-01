@@ -310,6 +310,24 @@ app.post("/check-already-login", (req, res) => {
   res.json(user);
 });
 
+// Function get post method to logout user
+// by simple removing unique device id from user
+// and returns a simple information as response.
+app.post("/logout", (req, res) => {
+  // Printing request body for debugging
+  console.log(req.body);
+
+  // Remove unique device id from user
+  // TODO
+
+  // ----------------------- Important note -------------------------
+  // We are sending in user data one unique device id to store all
+  // devices logged in we must hold it in database as an array.
+
+  // Send a response
+  res.json({ deletedSuccesfully: true });
+});
+
 //============================================================================
 
 app.listen(port, () => {

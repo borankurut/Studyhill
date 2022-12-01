@@ -115,7 +115,7 @@ function Login() {
             type="email"
             required
             placeholder="Please enter your email"
-            className="text-black w-full p-2 outline-navbar-dark text-sm md:text-base lg:text-lg xl:text-xl rounded-sm"
+            className="text-black w-full p-2 outline-navbar-dark text-base md:text-lg lg:text-xl xl:text-2xl rounded-sm"
             onChange={(e) => {
               setEmailText(e.target.value);
             }}
@@ -125,7 +125,7 @@ function Login() {
             type="password"
             required
             placeholder="Please enter your password"
-            className="text-black w-full p-2 outline-navbar-dark text-sm md:text-base lg:text-lg xl:text-xl rounded-sm"
+            className="text-black w-full p-2 outline-navbar-dark text-base md:text-lg lg:text-xl xl:text-2xl rounded-sm"
             onChange={(e) => {
               setPassText(e.target.value);
             }}

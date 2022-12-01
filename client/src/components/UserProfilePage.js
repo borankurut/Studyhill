@@ -22,7 +22,9 @@ function UserProfilePage() {
 
   // Set each data for debugging.
   useLayoutEffect(() => {
+    // Set current day using momentjs
     setDay(moment().format("dddd"));
+    // Set current date using momentjs
     setDate(moment().format("MMM Do YYYY"));
 
     // Initial values for user data before getting the real
@@ -101,6 +103,31 @@ function UserProfilePage() {
     }
   }, []);
 
+  const handleLogOut = (e) => {
+    // Do not let default behoviour of button when clicked
+    e.preventDefault();
+
+    // post a request to logout user from this device
+    // simple by deleting unique device id stored in database
+    axios
+      .post("/logout", {
+        username: localStorage.getItem("username"),
+        uniqeDeviceID: localStorage.getItem("studyhill-device-id"),
+      })
+      .then((res) => {
+        // remove username and studyhill-device-id from localstorage
+        localStorage.removeItem("username");
+        localStorage.removeItem("studyhill-device-id");
+
+        // navigate to homepage
+        navigate("/");
+      })
+      // Catch and log error
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   return (
     <div className="container mx-auto">
       <header className="bg-navbar-dark p-6 flex justify-between items-center">
@@ -110,18 +137,23 @@ function UserProfilePage() {
         <nav className="flex items-center justify-evenly gap-6">
           <NavLink
             to="join-group"
-            className="text-xs md:text-sm lg:text-base xl:text-lg px-2 py-1 md:px-4 md:py-2 border border-white rounded-md font-semibold hover:text-slate-300 hover:border-slate-300 transition duration-150 ease-in"
+            className="text-xs md:text-sm lg:text-base xl:text-lg px-2 py-1 md:px-4 md:py-2 font-semibold hover:text-slate-300 hover:border-slate-300 transition duration-150 ease-in"
           >
-            Join
-            <br />A Group
+            Join A Group
           </NavLink>
           <NavLink
             to="create-group"
-            className="text-xs md:text-sm lg:text-base xl:text-lg px-2 py-1 md:px-4 md:py-2 border border-white rounded-md font-semibold hover:text-slate-300 hover:border-slate-300 transition duration-150 ease-in"
+            className="text-xs md:text-sm lg:text-base xl:text-lg px-2 py-1 md:px-4 md:py-2 font-semibold hover:text-slate-300 hover:border-slate-300 transition duration-150 ease-in"
           >
-            Create
-            <br /> A Group
+            Create A Group
           </NavLink>
+          <button
+            to="join-group"
+            className="text-xs md:text-sm lg:text-base xl:text-lg px-2 py-1 md:px-4 md:py-2 font-semibold hover:text-slate-300 hover:border-slate-300 transition duration-150 ease-in"
+            onClick={handleLogOut}
+          >
+            Log Out
+          </button>
         </nav>
       </header>
 
@@ -175,7 +207,7 @@ function UserProfilePage() {
           </div>
 
           {/* Graph */}
-          <div className="relative w-72 lg:w-96 h-40  flex justify-evenly items-end mx-auto gap-2">
+          <div className="relative w-64 lg:w-96 h-40  flex justify-evenly items-end mx-auto gap-2">
             <div
               className="relative w-12 bg-cyan-400 rounded-t-sm"
               style={{ height: `${weeklyHours.monday}rem` }}
@@ -234,7 +266,7 @@ function UserProfilePage() {
             </div>
 
             <div
-              className="w-72 lg:w-[28rem] bg-white rounded-t-sm h-1 absolute left:0"
+              className="w-64 lg:w-[28rem] bg-white rounded-t-sm h-1 absolute left:0"
               style={{ bottom: `${weeklyGoal}rem` }}
             >
               <div className="text-xs md:text-sm lg:text-base xl:text-lg font-sans font-light w-12 absolute top-0 left-0 -translate-x-full -translate-y-1/2">
