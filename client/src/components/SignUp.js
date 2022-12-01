@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 function SignUp() {
   return (
     <div className="container mx-auto h-screen w-screen flex flex-col items-center justify-center">
-      <div className="text-center bg-navbar-dark py-8 px-12 shadow-md shadow-navbar-dark rounded-md">
-        <h1 className="font-sans font-semibold text-sm md:text-base lg:text-lg xl:text-xl tracking-widest mb-8">
+      <div className="text-center bg-navbar-dark p-16 md:p-24 shadow-md shadow-navbar-dark rounded-md">
+        <h1 className="font-sans font-semibold text-xl md:text-2xl lg:text-3xl xl:text-4xl tracking-widest mb-8">
           STUDYHILL SIGN UP
         </h1>
         <form

@@ -1,29 +1,16 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useEffect, useState } from "react";
 
 function UserProfilePage() {
-  const userName = "Bond007";
-  const day = "Saturday";
-  const week = "21 Nov - 27 November";
-  const date = "26 November";
-  const tasks = [
-    "Wake Up at 8:00 AM",
-    "Jog for half an hour",
-    "Join the scrum",
-    "Study Software Engineering Lecture for 2 hours",
-  ];
-  const weeklyGoal = 4;
+  const [userName, setUserName] = useState("jamesBond");
+  const [day, setDay] = useState("Saturday");
+  const [date, setDate] = useState("1 December 2022");
+  const [tasks, setTasks] = useState(["Study SE for 1 hour"]);
+  const [weeklyGoal, setWeeklyGoal] = useState(4);
+  const [weeklyHours, setweeklyHours] = useState([]);
+  const [badges, setBadges] = useState([]);
 
-  const weeks = {
-    Monday: 4,
-    Tuesday: 6,
-    Wednesday: 5,
-    Thursday: 5,
-    Friday: 6,
-    Saturday: 3,
-    Sunday: 8,
-  };
-
-  const badges = ["award1", "award2", "award3", "award4", "award5", "award6"];
   return (
     <div className="container mx-auto">
       <header className="bg-navbar-dark p-6 flex justify-between items-center">
@@ -76,8 +63,11 @@ function UserProfilePage() {
             </h3>
             <hr className="my-6" />
             <ul className="list-disc">
-              {tasks.map((task) => (
-                <li className="text-sm md:text-base lg:text-lg xl:text-xl font-light font-sans">
+              {tasks.map((task, i) => (
+                <li
+                  key={i}
+                  className="text-sm md:text-base lg:text-lg xl:text-xl font-light font-sans"
+                >
                   {task}
                 </li>
               ))}
@@ -88,36 +78,17 @@ function UserProfilePage() {
         {/* Main body */}
         <main className="grow-1  w-full h-full p-6">
           {/* Weekly track div */}
-          <div className="flex flex-row items-center justify-center py-2 gap-2 md:gap-4 lg:gap-6 xl:gap-8">
+          <div className="flex flex-row items-center justify-center py-2">
             <h1 className="text-sm md:text-base lg:text-lg xl:text-xl font-semibold tracking-wider">
               Weekly Track
             </h1>
-            <div className="self-center flex flex-row items-center justify-center gap-2">
-              <button className="font-extrabold border-2 border-white rounded-md px-2 py-1 text-sm md:text-base lg:text-lg xl:text-xl hover:border-slate-300 hover:text-slate-300 transition duration-150 ease-in">
-                &#60;
-              </button>
-              <span className="font-semibold text-xs md:text-sm lg:text-base xl:text-lg border-2 border-white rounded-md px-2 py-1">
-                {week}
-              </span>
-              <button className="font-extrabold border-2 border-white rounded-md px-2 py-1 text-sm md:text-base lg:text-lg xl:text-xl hover:border-slate-300 hover:text-slate-300 transition duration-150 ease-in">
-                &#62;
-              </button>
-            </div>
-
-            <button className="border-2 border-white hover:border-slate-300 px-2 py-1 md:py-2 rounded-md transition duration-150 ease-in">
-              <img
-                src="./img/icons8-line-chart-100.png"
-                alt="Stats Icon"
-                className="w-6"
-              />
-            </button>
           </div>
 
           {/* Graph */}
           <div className="relative w-72 lg:w-96 h-40  flex justify-evenly items-end mx-auto gap-2">
             <div
               className="relative w-12 bg-cyan-400 rounded-t-sm"
-              style={{ height: `${weeks.Monday}rem` }}
+              style={{ height: `${weeklyHours.monday}rem` }}
             >
               <p className="text-xs md:text-sm lg:text-base xl:text-lg w-fit absolute bottom-0 right-0 rotate-[-60deg] translate-y-10 md:translate-y-16">
                 Monday
@@ -125,7 +96,7 @@ function UserProfilePage() {
             </div>
             <div
               className="relative w-12 bg-cyan-400 rounded-t-sm"
-              style={{ height: `${weeks.Tuesday}rem` }}
+              style={{ height: `${weeklyHours.tuesday}rem` }}
             >
               <p className="text-xs md:text-sm lg:text-base xl:text-lg w-fit absolute bottom-0 right-0 rotate-[-60deg] translate-y-10 md:translate-y-16">
                 Tuesday
@@ -133,7 +104,7 @@ function UserProfilePage() {
             </div>
             <div
               className="relative w-12 bg-cyan-400 rounded-t-sm"
-              style={{ height: `${weeks.Wednesday}rem` }}
+              style={{ height: `${weeklyHours.wednesday}rem` }}
             >
               <p className="text-xs md:text-sm lg:text-base xl:text-lg w-fit absolute bottom-0 right-0 rotate-[-60deg] translate-y-10 md:translate-y-16">
                 Wednesday
@@ -141,7 +112,7 @@ function UserProfilePage() {
             </div>
             <div
               className="relative w-12 bg-cyan-400 rounded-t-sm"
-              style={{ height: `${weeks.Thursday}rem` }}
+              style={{ height: `${weeklyHours.thursday}rem` }}
             >
               <p className="text-xs md:text-sm lg:text-base xl:text-lg w-fit absolute bottom-0 right-0 rotate-[-60deg]  translate-y-10 md:translate-y-16">
                 Thursday
@@ -149,7 +120,7 @@ function UserProfilePage() {
             </div>
             <div
               className="relative w-12 bg-cyan-400 rounded-t-sm"
-              style={{ height: `${weeks.Friday}rem` }}
+              style={{ height: `${weeklyHours.friday}rem` }}
             >
               <p className="text-xs md:text-sm lg:text-base xl:text-lg w-fit absolute bottom-0 right-0 rotate-[-60deg] translate-y-10 md:translate-y-16">
                 Friday
@@ -157,7 +128,7 @@ function UserProfilePage() {
             </div>
             <div
               className="relative w-12 bg-cyan-400 rounded-t-sm"
-              style={{ height: `${weeks.Saturday}rem` }}
+              style={{ height: `${weeklyHours.saturday}rem` }}
             >
               <p className="text-xs md:text-sm lg:text-base xl:text-lg w-fit absolute bottom-0 right-0 rotate-[-60deg] translate-y-10 md:translate-y-16">
                 Saturday
@@ -165,7 +136,7 @@ function UserProfilePage() {
             </div>
             <div
               className="relative w-12 bg-cyan-400 rounded-t-sm"
-              style={{ height: `${weeks.Sunday}rem` }}
+              style={{ height: `${weeklyHours.sunday}rem` }}
             >
               <p className="text-xs md:text-sm lg:text-base xl:text-lg w-fit absolute bottom-0 right-0 rotate-[-60deg] translate-y-10 md:translate-y-16">
                 Sunday
@@ -194,9 +165,12 @@ function UserProfilePage() {
             </div>
             {/* Badge Collection */}
             <div className="grid grid-cols-2 lg:grid-cols-3">
-              {badges.map((badge) => {
+              {badges.map((badge, i) => {
                 return (
-                  <div className="flex flex-row items-center justify-start gap-4 mx-6 my-4">
+                  <div
+                    key={i}
+                    className="flex flex-row items-center justify-start gap-4 mx-6 my-4"
+                  >
                     <div className="w-6 h-6 bg-cyan-400">
                       <div className="w-6 h-6 bg-cyan-400 rotate-45"></div>
                     </div>

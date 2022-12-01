@@ -208,8 +208,8 @@ app.put("/creategroup", (req, res) => {
  * ███████║   ██║   ╚██████╔╝██████╔╝
  * ╚══════╝   ╚═╝    ╚═════╝ ╚═════╝
  *
- * Login Post method will be handled by this function. But for now its is here to just debugging
- * front-end login page.
+ * Login Post method will be handled by this function. But for now
+ * its is here to just debugging front-end login page.
  *
  */
 
@@ -237,6 +237,9 @@ app.post("/login", (req, res) => {
   // Else there will be an alert that there is no such user exists to client
   const user = {
     verification: true,
+    username: "KaraMurat",
+    hasGroup: false,
+    groupName: "",
     tasks: [
       "Study Software Engineering lecture for 2 hours",
       "Read a book for 1 hour",
@@ -252,8 +255,57 @@ app.post("/login", (req, res) => {
       sunday: 1,
     },
     badgesEarned: ["badge1", "badge2", "badge3", "badge4"],
+    // A unique id for each devices to remember login.
+    // This id will be stored in local store. In home page request if
+    // unique id of this device for the username (request will be
+    // sent with username)
+    // correct, then user will login automatically.
+    uniqeDeviceID: "ASDFA0000FDF1223",
   }; // These are what i remember. Of course we can add more information to send
   res.json(user); // Send user in JSON format as response to client.
+});
+
+// If there is stored username and devicedID, then client post this values
+// as an object to server to check whether this username exist or not.
+// And gets a response that consists of data of the user.
+app.post("/check-already-login", (req, res) => {
+  // Print request body for debugging.
+  console.log(req.body);
+
+  // Checking uniqueDeviceID and username
+  // _________ _______  ______   _______
+  // \__   __/(  ___  )(  __  \ (  ___  )
+  //    ) (   | (   ) || (  \  )| (   ) |
+  //    | |   | |   | || |   ) || |   | |
+  //    | |   | |   | || |   | || |   | |
+  //    | |   | |   | || |   ) || |   | |
+  //    | |   | (___) || (__/  )| (___) |
+  //    )_(   (_______)(______/ (_______)
+
+  // The rest same as login post
+  const user = {
+    verification: true,
+    username: "KaraMurat",
+    hasGroup: false,
+    groupName: "",
+    tasks: [
+      "Study Software Engineering lecture for 2 hours",
+      "Read a book for 1 hour",
+    ],
+    weeklyGoal: 5,
+    weeklyHours: {
+      monday: 4,
+      tuesday: 3,
+      wednesday: 5,
+      thursday: 3,
+      friday: 6,
+      saturday: 4,
+      sunday: 1,
+    },
+    badgesEarned: ["badge1", "badge2", "badge3", "badge4"],
+    uniqeDeviceID: "ASDFA0000FDF1223",
+  };
+  res.json(user);
 });
 
 //============================================================================

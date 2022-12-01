@@ -1,29 +1,80 @@
 import { Link, useNavigate } from "react-router-dom";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 function Login() {
   const [emailText, setEmailText] = useState("");
   const [passText, setPassText] = useState("");
+  const [isEmailTextValid, setIsEmailTextValid] = useState(false);
+
+  const [data, setData] = useState(null);
 
   var user = {
     email: emailText,
     password: passText,
   };
 
+  useEffect(() => {
+    if (
+      String(emailText)
+        .toLowerCase()
+        .match(
+          /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        )
+    )
+      setIsEmailTextValid(true);
+    else setIsEmailTextValid(false);
+  }, [emailText]);
+
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    if (!isEmailTextValid) {
+      alert("Invalid Email!");
+      return;
+    }
+
     axios
       .post("/login", user)
       .then((res) => {
-        if (res.data.verification == true) navigate("/profile-user");
-        else alert("Your email or password is incorrect");
+        if (res.data.verification) {
+          // store username and device ID to local storage to make next
+          // loggin automatically.
+          localStorage.setItem("username", res.data.username);
+          localStorage.setItem("studyhill-device-id", res.data.uniqeDeviceID);
+
+          // Navigate to profile page
+          setData(res.data);
+          console.log(data);
+          if (res.data.hasGroup) navigate("/profile-group");
+          else navigate("/profile-user");
+        } else alert("Your email or password is incorrect");
       })
       .catch((err) => console.log(err));
   };
+
+  // Check that whether user is already loggin or not
+  if (
+    localStorage.getItem("username") !== null &&
+    localStorage.getItem("studyhill-device-id") !== null
+  ) {
+    axios
+      .post("/check-already-login", {
+        username: localStorage.getItem("username"),
+        uniqeDeviceID: localStorage.getItem("studyhill-device-id"),
+      })
+      .then((res) => {
+        console.log(res.data);
+        if (res.data.verification) {
+          // User already loggin
+          if (res.data.hasGroup) navigate("/profile-group");
+          else navigate("/profile-user");
+        }
+      })
+      .catch((err) => console.log(err));
+  }
 
   return (
     <div className="container mx-auto h-screen w-screen flex flex-col items-center justify-center">
@@ -54,6 +105,7 @@ function Login() {
           />
           <button
             onClick={handleSubmit}
+            disabled={emailText === "" || passText === ""}
             className="text-navbar-dark bg-white py-4 px-6 font-bold text-base md:text-lg lg:text-xl xl:text-2xl rounded-md hover:bg-slate-200 transition duration-150 ease-in"
           >
             LOGIN
