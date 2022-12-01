@@ -174,15 +174,9 @@ function UserProfilePage() {
             Start <span className="text-red-500">study</span>
           </NavLink>
           <div className="border border-white rounded-lg px-6 py-4 flex flex-col items-center justify-center">
-            <h3 className="text-sm md:text-base lg:text-lg xl:text-xl font-extrabold flex items-center justify-center gap-2">
-              <button className="border-2 border-white rounded-md px-2 py-0  hover:text-slate-300 hover:border-slate-300 transition duration-150 ease-in">
-                -
-              </button>
-              Tasks{" "}
-              <button className="border-2 border-white rounded-md px-2 py-0 hover:text-slate-300 hover:border-slate-300 transition duration-150 ease-in">
-                +
-              </button>
-            </h3>
+            <button className="text-sm md:text-base lg:text-lg xl:text-xl font-extrabold flex items-center justify-center gap-2">
+              Tasks
+            </button>
             <hr className="my-6" />
             <ul className="list-disc">
               {tasks.map((task, i) => (

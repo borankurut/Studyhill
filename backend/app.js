@@ -228,6 +228,8 @@ app.post("/login", (req, res) => {
   //    | |   | (___) || (__/  )| (___) |
   //    )_(   (_______)(______/ (_______)
 
+  // Generate unique device id for user and store it in an array for user device ids
+
   // Returning response to client
   // -----------------------------
   // An object that has informations of the user, if that user exists,
@@ -326,6 +328,11 @@ app.post("/logout", (req, res) => {
 
   // Send a response
   res.json({ deletedSuccesfully: true });
+});
+
+// STUB post method to route signup
+app.post("/signup", (req, res) => {
+  res.json({ foo: true });
 });
 
 //============================================================================
