@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState, useRef } from "react";
 import moment from "moment";
 
 function UserProfilePage() {
@@ -19,6 +19,8 @@ function UserProfilePage() {
     sunday: 1,
   });
   const [badges, setBadges] = useState([]);
+
+  const [isNavbarOpen, setIsNavbarOpen] = useState(false);
 
   // Set each data for debugging.
   useLayoutEffect(() => {
@@ -45,14 +47,6 @@ function UserProfilePage() {
     });
     setUserName("Foo");
   }, []);
-
-  //For debugging
-  useEffect(() => {
-    console.log("day", day);
-  }, [day]);
-  useEffect(() => {
-    console.log("date", date);
-  }, [date]);
 
   // For the first load of the user profile page check
   // that user is already loggin or not.
@@ -128,33 +122,80 @@ function UserProfilePage() {
       });
   };
 
+  const navbar = useRef();
+
+  const toggleNavbar = () => {
+    if (isNavbarOpen) {
+      navbar.current.classList.remove("invisible", "opacity-0");
+      setIsNavbarOpen(false);
+    } else {
+      navbar.current.classList.add("invisible", "opacity-0");
+      setIsNavbarOpen(true);
+    }
+  };
+
   return (
     <div className="container mx-auto">
-      <header className="bg-navbar-dark p-6 flex justify-between items-center">
-        <h1 className="font-semibold text-sm md:text-base lg:text-lg xl:text-xl">
+      <header className="relative bg-navbar-dark p-6 flex justify-between items-center">
+        <h1 className="font-semibold text-base md:text-lg lg:text-xl xl:text-2xl">
           Hi {userName},<br /> Welcome back 👋
         </h1>
-        <nav className="flex items-center justify-evenly gap-6">
+
+        {/* large screen navbar */}
+        <nav className="hidden md:flex items-center justify-end gap-6 p-6">
           <NavLink
             to="join-group"
-            className="text-xs md:text-sm lg:text-base xl:text-lg px-2 py-1 md:px-4 md:py-2 font-semibold hover:text-slate-300 hover:border-slate-300 transition duration-150 ease-in"
+            className="lg:text-lg xl:text-xl font-semibold hover:text-slate-300 hover:border-slate-300 transition duration-150 ease-in"
           >
             Join A Group
           </NavLink>
           <NavLink
             to="create-group"
-            className="text-xs md:text-sm lg:text-base xl:text-lg px-2 py-1 md:px-4 md:py-2 font-semibold hover:text-slate-300 hover:border-slate-300 transition duration-150 ease-in"
+            className="lg:text-lg xl:text-xl font-semibold hover:text-slate-300 hover:border-slate-300 transition duration-150 ease-in"
           >
             Create A Group
           </NavLink>
           <button
             to="join-group"
-            className="text-xs md:text-sm lg:text-base xl:text-lg px-2 py-1 md:px-4 md:py-2 font-semibold hover:text-slate-300 hover:border-slate-300 transition duration-150 ease-in"
+            className="lg:text-lg xl:text-xl font-semibold hover:text-slate-300 hover:border-slate-300 transition duration-150 ease-in"
             onClick={handleLogOut}
           >
             Log Out
           </button>
         </nav>
+
+        {/* small screen navbar */}
+        <nav
+          ref={navbar}
+          className="invisible opacity-0 absolute left-0 top-full bg-inherit w-full flex flex-col md:hidden jusitfy-start items-start gap-4 p-6 transition duration-150 ease-in"
+        >
+          <NavLink
+            to="join-group"
+            className="text-base font-semibold hover:text-slate-300 hover:border-slate-300 transition duration-150 ease-in"
+          >
+            Join A Group
+          </NavLink>
+          <NavLink
+            to="create-group"
+            className="text-base font-semibold hover:text-slate-300 hover:border-slate-300 transition duration-150 ease-in"
+          >
+            Create A Group
+          </NavLink>
+          <button
+            to="join-group"
+            className="text-base font-semibold hover:text-slate-300 hover:border-slate-300 transition duration-150 ease-in"
+            onClick={handleLogOut}
+          >
+            Log Out
+          </button>
+        </nav>
+
+        {/* Hamburger Button */}
+        <button className="md:hidden cursor-pointer" onClick={toggleNavbar}>
+          <div className="w-6 h-1 bg-white my-1"></div>
+          <div className="w-6 h-1 bg-white my-1"></div>
+          <div className="w-6 h-1 bg-white my-1"></div>
+        </button>
       </header>
 
       {/* Container flex div for rest of body */}
