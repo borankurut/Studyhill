@@ -233,12 +233,15 @@ function UserProfilePage() {
         </aside>
 
         {/* Main body */}
-        <main className="grow-1  w-full h-full p-6">
+        <main className="grow-1  w-full h-full p-6 flex flex-col items-center justify-center gap-6">
           {/* Weekly track div */}
-          <div className="flex flex-row items-center justify-center py-2">
+          <div className="flex flex-col items-center justify-center py-2 gap-2">
             <h1 className="text-sm md:text-base lg:text-lg xl:text-xl font-semibold tracking-wider">
               Weekly Track
             </h1>
+            <p className="text-xs md:text-sm lg:text-base xl:text-lg font-semibold tracking-wider">
+              Weekly Goal is {weeklyGoal}h
+            </p>
           </div>
 
           {/* Graph */}
@@ -304,14 +307,14 @@ function UserProfilePage() {
               className="w-64 lg:w-[28rem] bg-white rounded-t-sm h-1 absolute left:0"
               style={{ bottom: `${weeklyGoal}rem` }}
             >
-              <div className="text-xs md:text-sm lg:text-base xl:text-lg font-sans font-light w-12 absolute top-0 left-0 -translate-x-full -translate-y-1/2">
-                Weekly goal <br /> {weeklyGoal}h
+              <div className="text-xs md:text-sm lg:text-base xl:text-lg font-sans font-light w-12 absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2">
+                {weeklyGoal}h
               </div>
             </div>
           </div>
 
           {/* Badges Collection Div */}
-          <div className="max-w-96 md:max-w-md lg:max-w-lg xl:max-w-xl mt-36 mx-auto flex flex-col items-start justify-start gap-6">
+          <div className="max-w-96 md:max-w-md lg:max-w-lg xl:max-w-xl mt-32 md:mt-52 mx-auto flex flex-col items-start justify-start gap-6">
             <div className="p-6 md:p-0 flex flex-row items-center justfiy-start gap-2">
               <h1 className="font-extrabold font-sans text-sm md:text-base lg:text-lg xl:text-xl">
                 Badge Collection
