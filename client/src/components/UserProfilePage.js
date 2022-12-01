@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useEffect, useLayoutEffect, useState } from "react";
+import moment from "moment";
 
 function UserProfilePage() {
   const [userName, setUserName] = useState("");
@@ -21,8 +22,13 @@ function UserProfilePage() {
 
   // Set each data for debugging.
   useLayoutEffect(() => {
-    setDate("13 November Saturday");
-    setDay("Saturday");
+    setDay(moment().format("dddd"));
+    setDate(moment().format("MMM Do YYYY"));
+
+    // Initial values for user data before getting the real
+    // datas from backend server. We need this initial values
+    // for the sake of rendering properly
+    // because react useLayoutEffect is run after render.
     setBadges(["badge1", "badge2", "badge3"]);
     setTasks(["task1", "task2", "task3", "task4"]);
     setWeeklyGoal(5);
@@ -40,11 +46,11 @@ function UserProfilePage() {
 
   //For debugging
   useEffect(() => {
-    console.log("date", date);
-  }, [date]);
-  useEffect(() => {
     console.log("day", day);
   }, [day]);
+  useEffect(() => {
+    console.log("date", date);
+  }, [date]);
 
   // For the first load of the user profile page check
   // that user is already loggin or not.
