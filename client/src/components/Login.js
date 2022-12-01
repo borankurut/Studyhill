@@ -3,17 +3,20 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 function Login() {
+  // Email Address read from input box
   const [emailText, setEmailText] = useState("");
+  // password read from input box
   const [passText, setPassText] = useState("");
+  // Holds whether syntax of email valid or not.
   const [isEmailTextValid, setIsEmailTextValid] = useState(false);
 
-  const [data, setData] = useState(null);
-
+  // user object to send to backend.
   var user = {
     email: emailText,
     password: passText,
   };
 
+  // Each change on emailText check that whether email is valid or not. And sets isEmailTextValid.
   useEffect(() => {
     if (
       String(emailText)
@@ -28,53 +31,77 @@ function Login() {
 
   const navigate = useNavigate();
 
+  // Submit handler function, invokes when login button is clicked,
   const handleSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Do not submit anything.
 
+    // If email is not valid, then alert user and quit the function
     if (!isEmailTextValid) {
       alert("Invalid Email!");
       return;
     }
 
     axios
-      .post("/login", user)
+      .post("/login", user) // post user to backend
       .then((res) => {
+        // if verification is true, first store user and device id to local storage
         if (res.data.verification) {
           // store username and device ID to local storage to make next
           // loggin automatically.
           localStorage.setItem("username", res.data.username);
           localStorage.setItem("studyhill-device-id", res.data.uniqeDeviceID);
 
-          // Navigate to profile page
-          setData(res.data);
-          console.log(data);
+          // Then Navigate to profile page
+
+          // If user has group then navigate to group profile page
+          // instead of user profile page
           if (res.data.hasGroup) navigate("/profile-group");
-          else navigate("/profile-user");
-        } else alert("Your email or password is incorrect");
+          else navigate("/profile-user"); // Else navigate to user profile page
+        } else {
+          // Case thatn account doesn't exists!
+          // Warn user about it and stay in login page.
+          alert("Your email or password is incorrect");
+        }
       })
+      // If there is an error occour during communication
+      // Print it to console.
       .catch((err) => console.log(err));
   };
 
-  // Check that whether user is already loggin or not
-  if (
-    localStorage.getItem("username") !== null &&
-    localStorage.getItem("studyhill-device-id") !== null
-  ) {
-    axios
-      .post("/check-already-login", {
-        username: localStorage.getItem("username"),
-        uniqeDeviceID: localStorage.getItem("studyhill-device-id"),
-      })
-      .then((res) => {
-        console.log(res.data);
-        if (res.data.verification) {
-          // User already loggin
-          if (res.data.hasGroup) navigate("/profile-group");
-          else navigate("/profile-user");
-        }
-      })
-      .catch((err) => console.log(err));
-  }
+  // For the first load of the login page check
+  // that user is already loggin or not.
+  useEffect(() => {
+    // Check that whether user is already loggin or not
+    if (
+      localStorage.getItem("username") !== null &&
+      localStorage.getItem("studyhill-device-id") !== null
+    ) {
+      // If there is a username and device id for studyhill exist in
+      // localstorage, then post backend to that information to check that
+      // whether a user with the information send exists or not.
+      // If exists navigate to the profile pages, respect to the information that
+      // user has group or not, else keep proceed on loading login page.
+      axios
+        .post("/check-already-login", {
+          // Send username and device id to backend server
+          username: localStorage.getItem("username"),
+          uniqeDeviceID: localStorage.getItem("studyhill-device-id"),
+        })
+        .then((res) => {
+          // If user exists navigate user to profile page, with determining
+          // which one to navigate
+          if (res.data.verification) {
+            // User has a group. Therefore navigate to group profile page
+            if (res.data.hasGroup) navigate("/profile-group");
+            // User hasn't got a group. Therefore navigate to user profile page.
+            else navigate("/profile-user");
+          }
+        })
+        // Catch and print error to the console if an error happends during
+        // communication with backend server
+        .catch((err) => console.log(err));
+    }
+  }, []);
 
   return (
     <div className="container mx-auto h-screen w-screen flex flex-col items-center justify-center">
