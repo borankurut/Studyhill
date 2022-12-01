@@ -1,15 +1,99 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 
 function UserProfilePage() {
-  const [userName, setUserName] = useState("jamesBond");
-  const [day, setDay] = useState("Saturday");
-  const [date, setDate] = useState("1 December 2022");
-  const [tasks, setTasks] = useState(["Study SE for 1 hour"]);
-  const [weeklyGoal, setWeeklyGoal] = useState(4);
-  const [weeklyHours, setweeklyHours] = useState([]);
+  const [userName, setUserName] = useState("");
+  const [day, setDay] = useState("");
+  const [date, setDate] = useState("");
+  const [tasks, setTasks] = useState([]);
+  const [weeklyGoal, setWeeklyGoal] = useState("");
+  const [weeklyHours, setweeklyHours] = useState({
+    monday: 1,
+    tuesday: 1,
+    wednesday: 1,
+    thursday: 1,
+    friday: 1,
+    saturday: 1,
+    sunday: 1,
+  });
   const [badges, setBadges] = useState([]);
+
+  // Set each data for debugging.
+  useLayoutEffect(() => {
+    setDate("13 November Saturday");
+    setDay("Saturday");
+    setBadges(["badge1", "badge2", "badge3"]);
+    setTasks(["task1", "task2", "task3", "task4"]);
+    setWeeklyGoal(5);
+    setweeklyHours({
+      monday: 5,
+      tuesday: 3,
+      wednesday: 6,
+      thursday: 4,
+      friday: 6,
+      saturday: 3,
+      sunday: 1,
+    });
+    setUserName("Foo");
+  }, []);
+
+  //For debugging
+  useEffect(() => {
+    console.log("date", date);
+  }, [date]);
+  useEffect(() => {
+    console.log("day", day);
+  }, [day]);
+
+  // For the first load of the user profile page check
+  // that user is already loggin or not.
+  const navigate = useNavigate();
+  useEffect(() => {
+    // Check that whether user is already loggin or not
+    if (
+      localStorage.getItem("username") !== null &&
+      localStorage.getItem("studyhill-device-id") !== null
+    ) {
+      // If there is a username and device id for studyhill exist in
+      // localstorage, then post backend to that information to check that
+      // whether a user with the information send exists or not.
+      // If exists check that whether user has a group or not.
+      // If user has a group then navigate to group profile page, else
+      // stay in this page.
+      axios
+        .post("/check-already-login", {
+          // Send username and device id to backend server
+          username: localStorage.getItem("username"),
+          uniqeDeviceID: localStorage.getItem("studyhill-device-id"),
+        })
+        .then((res) => {
+          // If user exists navigate user to profile page, with determining
+          // which one to navigate
+          if (res.data.verification) {
+            // User has a group. Therefore navigate to group profile page
+            if (res.data.hasGroup) navigate("/profile-group");
+            // User hasn't got a group. Therefore stay in this page.
+            // And set user datas respect to the response data.
+            else {
+              // Set user informations here.
+              setBadges([...res.data.badges]);
+              setTasks([...res.data.tasks]);
+              setWeeklyGoal(res.data.weeklyGoal);
+              setweeklyHours({ ...res.data.weeklyHours });
+              setUserName(res.data.username);
+            }
+          }
+        })
+        // Catch and print error to the console if an error happends during
+        // communication with backend server
+        .catch((err) => console.log(err));
+    } else {
+      // User hasn't logged in yet!
+      // navigate to login page.
+      navigate("/login");
+    }
+  }, []);
 
   return (
     <div className="container mx-auto">

@@ -289,20 +289,22 @@ app.post("/check-already-login", (req, res) => {
     hasGroup: false,
     groupName: "",
     tasks: [
-      "Study Software Engineering lecture for 2 hours",
+      "Study lecture Software Engineering for 2 hours",
+      "Study lecture Programming Languages for 2 hours",
       "Read a book for 1 hour",
+      "jogging for half an hour",
     ],
-    weeklyGoal: 5,
+    weeklyGoal: 3,
     weeklyHours: {
       monday: 4,
-      tuesday: 3,
+      tuesday: 6,
       wednesday: 5,
       thursday: 3,
       friday: 6,
       saturday: 4,
-      sunday: 1,
+      sunday: 2,
     },
-    badgesEarned: ["badge1", "badge2", "badge3", "badge4"],
+    badges: ["my badge 1", "my badge 2", "my badge 3", "my badge 4"],
     uniqeDeviceID: "ASDFA0000FDF1223",
   };
   res.json(user);
