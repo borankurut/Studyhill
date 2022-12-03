@@ -57,7 +57,9 @@ app.get("/", (req, res) => {
   });
 });
 
-app.post("/", async (req, res) => {
+app.post("/login", async (req, res) => {
+  
+  console.log(req.body);
   const { email, password } = req.body;
 
   if (!email || !password) return res.status(400).send("please provide"); // username or password empty.
@@ -72,31 +74,51 @@ app.post("/", async (req, res) => {
         return res.status(400).send(error.toString());
       }
 
-      if (
-        !results[0] ||
-        (await !comparePassword(password, results[0].password))
+      if (!results[0] || !(await comparePassword(password, results[0].password))
       ) {
         // user not found
-        return res.status(400).send("Username or password is not valid.");
+        return res.json({verification: false});
       }
-      const isUserVerified = results[0].verified;
 
-      // user found and pass is valid.
-      if (isUserVerified) return res.status(200).send("valid");
-      else return res.status(200).send("please verify your account.");
+      const isUserVerified = results[0].verified;
+      const username = results[0].username;
+
+
+      // user found and pass is valid.  HARD CODED!!! FIX LATER!!!
+      if (isUserVerified) 
+        return res.json({verification: true, mailVerified: true, username: username,
+          groupName: "",
+          tasks: [
+            "Study lecture Software Engineering for 2 hours",
+            "Study lecture Programming Languages for 2 hours",
+            "Read a book for 1 hour",
+            "jogging for half an hour",
+          ],
+          weeklyGoal: 3,
+          weeklyHours: {
+            monday: 4,
+            tuesday: 6,
+            wednesday: 5,
+            thursday: 3,
+            friday: 6,
+            saturday: 4,
+            sunday: 2,
+          },
+          badges: ["my badge 1", "my badge 2", "my badge 3", "my badge 4"],
+          uniqeDeviceID: "ASDFA0000FDF1223",});
+      else 
+        return res.json({verification: true, mailVerified: false, username: username});
 
       // user not found or password is not valid.
     }
   );
 });
 
-app.put("/signup", async (req, res) => {
-  const { email, username, password, passwordAgain } = req.body;
-
-  if (password !== passwordAgain)
-    // passwords not match
-    return res.status(400).send("passwords do not match.");
-
+app.post("/signup", async (req, res) => {
+  
+  console.log(req.body);
+  const { email, username, password} = req.body;
+  
   const user = new User(email, username, await cryptPassword(password));
   //users.push(user);
   //mysql REGISTER
@@ -111,7 +133,7 @@ app.put("/signup", async (req, res) => {
       }
 
       if (result.length > 0) {
-        return res.status(400).send("Email is already in use!");
+        return res.json({alreadyExists: true});
       }
 
       db.query(
@@ -136,7 +158,8 @@ app.put("/signup", async (req, res) => {
         async (error, results) => {
           console.log(results[0].id);
           sendVerificationMail(user.email, results[0].id); // TODO: Fix mail address.
-          return res.status(200).send("Waiting verification.");
+          //return res.status(200).send("Waiting verification.");
+          return res.json({foo : true});
         }
       );
     }
@@ -212,7 +235,7 @@ app.put("/creategroup", (req, res) => {
  * its is here to just debugging front-end login page.
  *
  */
-
+/*
 app.post("/login", (req, res) => {
   // Print request body for debugging.
   console.log(req.body);
@@ -266,10 +289,11 @@ app.post("/login", (req, res) => {
   }; // These are what i remember. Of course we can add more information to send
   res.json(user); // Send user in JSON format as response to client.
 });
-
+*/
 // If there is stored username and devicedID, then client post this values
 // as an object to server to check whether this username exist or not.
 // And gets a response that consists of data of the user.
+
 app.post("/check-already-login", (req, res) => {
   // Print request body for debugging.
   console.log(req.body);
@@ -285,9 +309,10 @@ app.post("/check-already-login", (req, res) => {
   //    )_(   (_______)(______/ (_______)
 
   // The rest same as login post
+  
   const user = {
     verification: true,
-    username: "KaraMurat",
+    username: req.body.username,
     hasGroup: false,
     groupName: "",
     tasks: [
@@ -331,9 +356,6 @@ app.post("/logout", (req, res) => {
 });
 
 // STUB post method to route signup
-app.post("/signup", (req, res) => {
-  res.json({ foo: true });
-});
 
 //============================================================================
 
