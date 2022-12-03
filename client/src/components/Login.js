@@ -46,6 +46,12 @@ function Login() {
       .then((res) => {
         // if verification is true, first store user and device id to local storage
         if (res.data.verification) {
+          //if email is not verified, alert and return login page
+          if(!res.data.mailVerified){
+            alert("Email is not verified.");
+            navigate("/login");
+            return;
+          }
           // store username and device ID to local storage to make next
           // loggin automatically.
           localStorage.setItem("username", res.data.username);

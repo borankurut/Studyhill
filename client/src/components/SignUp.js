@@ -48,8 +48,15 @@ function SignUp() {
     axios
       .post("/signup", user) // post user to backend
       .then((res) => {
-        // Navigate to login page
-        navigate("/login");
+        if(res.data.alreadyExists) {
+          alert("User already exists!");
+          navigate("/sign-up");
+        } else {
+          // Navigate to login page
+          navigate("/login");
+        }
+        
+        
       })
       // If there is an error occour during communication
       // Print it to console.
