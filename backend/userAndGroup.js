@@ -1,24 +1,27 @@
 const groups = [];
 const users = [];
 
+const mysql = require("mysql");
+
+const db = mysql.createConnection({
+  host: "localhost",
+  user: "root",
+  password: "1234",
+  database: "snowhill", //MySQL açık değilse burada hata verebilir. Bu satır comment edilirse hata gider.
+});
+
+db.connect((error) => {
+  if (error) {
+    console.log(error);
+  } else {
+    console.log("MySQL connected...");
+  }
+});
+
 const {Task} = require('./task.js');
 
 class User {
   constructor(email, username, password){
-    /* check mail and username
-    if(User.doesEmailExist(email))
-      throw new Error('Email exists.');
-    if(User.doesUsernameExist(username))
-      throw new Error('Username exists.');
-
-    //create unique id
-    do{
-      this.id = new Date().getTime() + Math.floor((Math.random() * 100));
-      this.id = this.id.toString();
-    }while(users.some(u => u.id === this.id));
-
-    */
-    this.id = 2; //to be deleted !!!!!!
     this.email = email;
     this.username = username;
     this.password = password;
@@ -54,6 +57,28 @@ class User {
 
   static doesUsernameExist(username){
     return users.some(u => u.username === username);
+  }
+
+  static findUserEmail(email, callback){//find user with given email from db.
+    db.query(
+      "SELECT * FROM users WHERE email = ?",
+      [email],
+      async (error, result) => {
+        if(error)
+          throw error;
+        return callback(result[0]);
+      });
+  }
+
+  static findUserId(id, callback){
+    db.query(
+      "SELECT * FROM users WHERE id = ?",
+      [id],
+      async (error, result) => {
+        if(error)
+          throw error;
+        return callback(result[0]);
+      });
   }
 }
 
@@ -116,4 +141,4 @@ class Group {
   }
 }
 
-module.exports = {users, groups, User, Group};
+module.exports = {User, Group};

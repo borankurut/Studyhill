@@ -4,7 +4,7 @@ const app = express();
 
 const path = require("path");
 
-const { users, groups, Group, User } = require("./userAndGroup.js");
+const {Group, User } = require("./userAndGroup.js");
 
 const { logger } = require("./logger.js");
 
@@ -50,22 +50,14 @@ app.use(express.json());
 const cors = require("cors");
 app.use(cors());
 
-app.get("/", (req, res) => {
-  return res.json({
-    users: users,
-    groups: groups,
-  });
-});
+const {dummy1, dummy2} = require('./dummyUsers');
 
 app.post("/login", async (req, res) => {
   
   console.log(req.body);
   const { email, password } = req.body;
 
-  if (!email || !password) return res.status(400).send("please provide"); // username or password empty.
-
-  //const user = users.find((u) => u.email === email);
-  db.query(
+  db.query(//todo: codes here are gonna be fixed after refactoring usersAndGroup.js
     "SELECT * FROM users WHERE email = ?",
     [email],
     async (error, results) => {
@@ -85,27 +77,13 @@ app.post("/login", async (req, res) => {
 
 
       // user found and pass is valid.  HARD CODED!!! FIX LATER!!!
-      if (isUserVerified) 
-        return res.json({verification: true, mailVerified: true, username: username,
-          groupName: "",
-          tasks: [
-            "Study lecture Software Engineering for 2 hours",
-            "Study lecture Programming Languages for 2 hours",
-            "Read a book for 1 hour",
-            "jogging for half an hour",
-          ],
-          weeklyGoal: 3,
-          weeklyHours: {
-            monday: 4,
-            tuesday: 6,
-            wednesday: 5,
-            thursday: 3,
-            friday: 6,
-            saturday: 4,
-            sunday: 2,
-          },
-          badges: ["my badge 1", "my badge 2", "my badge 3", "my badge 4"],
-          uniqeDeviceID: "ASDFA0000FDF1223",});
+      if (isUserVerified){
+        const toReturn = dummy2;
+        toReturn.verification = true;
+        toReturn.mailVerified = true;
+        toReturn.username = username;
+        return res.json(toReturn);
+      }
       else 
         return res.json({verification: true, mailVerified: false, username: username});
 
@@ -120,10 +98,9 @@ app.post("/signup", async (req, res) => {
   const { email, username, password} = req.body;
   
   const user = new User(email, username, await cryptPassword(password));
-  //users.push(user);
   //mysql REGISTER
 
-  db.query(
+  db.query(//todo: codes here are gonna be fixed after refactoring usersAndGroup.js
     "SELECT email FROM users WHERE email = ?",
     [email],
     async (error, result) => {
@@ -185,8 +162,6 @@ app.get("/verify", function (req, res) {
       }
     );
 
-    //users.find((u) => u.id === userId).verified = true; // make the user verified.
-
     return res.status(200).send("verified.");
   } catch (e) {
     return res.status(400).send(e.toString());
@@ -220,120 +195,12 @@ app.put("/creategroup", (req, res) => {
   return res.status(200).send("created");
 });
 
-//============================================================================
-
-/*
- *
- * ███████╗████████╗██╗   ██╗██████╗
- * ██╔════╝╚══██╔══╝██║   ██║██╔══██╗
- * ███████╗   ██║   ██║   ██║██████╔╝
- * ╚════██║   ██║   ██║   ██║██╔══██╗
- * ███████║   ██║   ╚██████╔╝██████╔╝
- * ╚══════╝   ╚═╝    ╚═════╝ ╚═════╝
- *
- * Login Post method will be handled by this function. But for now
- * its is here to just debugging front-end login page.
- *
- */
-/*
-app.post("/login", (req, res) => {
-  // Print request body for debugging.
-  console.log(req.body);
-
-  // There must be some checking that whether email given exists
-  // or not, which is job of backend, that i will skip for now.
-  // _________ _______  ______   _______
-  // \__   __/(  ___  )(  __  \ (  ___  )
-  //    ) (   | (   ) || (  \  )| (   ) |
-  //    | |   | |   | || |   ) || |   | |
-  //    | |   | |   | || |   | || |   | |
-  //    | |   | |   | || |   ) || |   | |
-  //    | |   | (___) || (__/  )| (___) |
-  //    )_(   (_______)(______/ (_______)
-
-  // Generate unique device id for user and store it in an array for user device ids
-
-  // Returning response to client
-  // -----------------------------
-  // An object that has informations of the user, if that user exists,
-  // and verification value, that can be eighter true or false.
-  // Front-end will process respect to the verification.
-  // If verification is true, then client will been navigate to profile page.
-  // Else there will be an alert that there is no such user exists to client
-  const user = {
-    verification: true,
-    username: "KaraMurat",
-    hasGroup: false,
-    groupName: "",
-    tasks: [
-      "Study Software Engineering lecture for 2 hours",
-      "Read a book for 1 hour",
-    ],
-    weeklyGoal: 5,
-    weeklyHours: {
-      monday: 4,
-      tuesday: 3,
-      wednesday: 5,
-      thursday: 3,
-      friday: 6,
-      saturday: 4,
-      sunday: 1,
-    },
-    badgesEarned: ["badge1", "badge2", "badge3", "badge4"],
-    // A unique id for each devices to remember login.
-    // This id will be stored in local store. In home page request if
-    // unique id of this device for the username (request will be
-    // sent with username)
-    // correct, then user will login automatically.
-    uniqeDeviceID: "ASDFA0000FDF1223",
-  }; // These are what i remember. Of course we can add more information to send
-  res.json(user); // Send user in JSON format as response to client.
-});
-*/
-// If there is stored username and devicedID, then client post this values
-// as an object to server to check whether this username exist or not.
-// And gets a response that consists of data of the user.
 
 app.post("/check-already-login", (req, res) => {
   // Print request body for debugging.
   console.log(req.body);
-
-  // Checking uniqueDeviceID and username
-  // _________ _______  ______   _______
-  // \__   __/(  ___  )(  __  \ (  ___  )
-  //    ) (   | (   ) || (  \  )| (   ) |
-  //    | |   | |   | || |   ) || |   | |
-  //    | |   | |   | || |   | || |   | |
-  //    | |   | |   | || |   ) || |   | |
-  //    | |   | (___) || (__/  )| (___) |
-  //    )_(   (_______)(______/ (_______)
-
-  // The rest same as login post
-  
-  const user = {
-    verification: true,
-    username: req.body.username,
-    hasGroup: false,
-    groupName: "",
-    tasks: [
-      "Study lecture Software Engineering for 2 hours",
-      "Study lecture Programming Languages for 2 hours",
-      "Read a book for 1 hour",
-      "jogging for half an hour",
-    ],
-    weeklyGoal: 3,
-    weeklyHours: {
-      monday: 4,
-      tuesday: 6,
-      wednesday: 5,
-      thursday: 3,
-      friday: 6,
-      saturday: 4,
-      sunday: 2,
-    },
-    badges: ["my badge 1", "my badge 2", "my badge 3", "my badge 4"],
-    uniqeDeviceID: "ASDFA0000FDF1223",
-  };
+  user = dummy2;
+  user.username = req.body.username;  //Todo: fix me later.
   res.json(user);
 });
 
@@ -355,9 +222,6 @@ app.post("/logout", (req, res) => {
   res.json({ deletedSuccesfully: true });
 });
 
-// STUB post method to route signup
-
-//============================================================================
 
 app.listen(port, () => {
   console.log(`Server is up and running on port ${port}`);
