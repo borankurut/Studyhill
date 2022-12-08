@@ -81,13 +81,13 @@ function StudyPage() {
   return (
     <div className="relative m-0 p-0 w-full h-screen flex flex-col items-center justify-center bg-mountain-agri bg-fixed bg-bottom bg-no-repeat bg-cover">
       {/* Centered Div */}
-      <div className="flex flex-col items-center justify-center gap-6 -translate-y-1/2">
+      <div className="flex flex-col items-center justify-center gap-6 md:-translate-y-1/2">
         {/* Timer */}
         <h1 className="text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-semibold font-sans tracking-wide ">
           {time}
         </h1>
         {/* Buttons */}
-        <div className="flex flex-row items-center justify-center gap-6">
+        <div className="flex gap-1 md:gap-8">
           <button
             onClick={handleStartButton}
             className="text-sm md:text-base lg:text-lg xl:text-xl font-sans font-semibold border-2 bg-transparent hover:bg-white text-white hover:text-slate-900 px-4 py-2 rounded-lg transition duration-150 ease-in"
@@ -121,7 +121,8 @@ function StudyPage() {
       </div>
 
       {/* Information about background image */}
-      <div className="absolute bottom-8 left-6 text-xs md:text-sm lg:text-base xl:text-lg font-sans font-semibold text-white tracking-wider">
+      {/* invisible for small devices */}
+      <div className="invisible opacity-0 md:visible md:opacity-100 absolute bottom-8 left-6 text-xs md:text-sm lg:text-base xl:text-lg font-sans font-semibold text-white tracking-wider">
         mountain
         <br />
         Ağrı - Türkiye
