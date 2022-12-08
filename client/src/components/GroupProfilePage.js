@@ -204,10 +204,9 @@ function GroupProfilePage(props) {
             Start <span className="text-red-500">study</span>
           </NavLink>
           <div className="border border-white rounded-lg px-6 py-4 flex flex-col items-center justify-center">
-            <button className="text-sm md:text-base lg:text-lg xl:text-xl font-extrabold flex items-center justify-center gap-2">
+            <button className="text-sm md:text-base lg:text-lg xl:text-xl font-extrabold mb-4">
               Tasks
             </button>
-            <hr className="my-6" />
             <ul className="list-disc">
               {tasks.map((task, i) => (
                 <li
