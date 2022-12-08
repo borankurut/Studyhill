@@ -124,12 +124,13 @@ function UserProfilePage() {
 
   const navbar = useRef();
 
-  const toggleNavbar = () => {
+  const toggleNavbar = (e) => {
+    e.preventDefault();
     if (isNavbarOpen) {
-      navbar.current.classList.remove("invisible", "opacity-0");
+      navbar.current.classList.add("invisible", "opacity-0");
       setIsNavbarOpen(false);
     } else {
-      navbar.current.classList.add("invisible", "opacity-0");
+      navbar.current.classList.remove("invisible", "opacity-0");
       setIsNavbarOpen(true);
     }
   };

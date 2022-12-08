@@ -4,7 +4,7 @@ const app = express();
 
 const path = require("path");
 
-const {Group, User } = require("./userAndGroup.js");
+const { Group, User } = require("./userAndGroup.js");
 
 const { logger } = require("./logger.js");
 
@@ -50,14 +50,14 @@ app.use(express.json());
 const cors = require("cors");
 app.use(cors());
 
-const {dummy1, dummy2} = require('./dummyUsers');
+const { dummy1, dummy2 } = require("./dummyUsers");
 
 app.post("/login", async (req, res) => {
-  
   console.log(req.body);
   const { email, password } = req.body;
 
-  db.query(//todo: codes here are gonna be fixed after refactoring usersAndGroup.js
+  db.query(
+    //todo: codes here are gonna be fixed after refactoring usersAndGroup.js
     "SELECT * FROM users WHERE email = ?",
     [email],
     async (error, results) => {
@@ -66,26 +66,30 @@ app.post("/login", async (req, res) => {
         return res.status(400).send(error.toString());
       }
 
-      if (!results[0] || !(await comparePassword(password, results[0].password))
+      if (
+        !results[0] ||
+        !(await comparePassword(password, results[0].password))
       ) {
         // user not found
-        return res.json({verification: false});
+        return res.json({ verification: false });
       }
 
       const isUserVerified = results[0].verified;
       const username = results[0].username;
 
-
       // user found and pass is valid.  HARD CODED!!! FIX LATER!!!
-      if (isUserVerified){
+      if (isUserVerified) {
         const toReturn = dummy2;
         toReturn.verification = true;
         toReturn.mailVerified = true;
         toReturn.username = username;
         return res.json(toReturn);
-      }
-      else 
-        return res.json({verification: true, mailVerified: false, username: username});
+      } else
+        return res.json({
+          verification: true,
+          mailVerified: false,
+          username: username,
+        });
 
       // user not found or password is not valid.
     }
@@ -93,14 +97,14 @@ app.post("/login", async (req, res) => {
 });
 
 app.post("/signup", async (req, res) => {
-  
   console.log(req.body);
-  const { email, username, password} = req.body;
-  
+  const { email, username, password } = req.body;
+
   const user = new User(email, username, await cryptPassword(password));
   //mysql REGISTER
 
-  db.query(//todo: codes here are gonna be fixed after refactoring usersAndGroup.js
+  db.query(
+    //todo: codes here are gonna be fixed after refactoring usersAndGroup.js
     "SELECT email FROM users WHERE email = ?",
     [email],
     async (error, result) => {
@@ -110,7 +114,7 @@ app.post("/signup", async (req, res) => {
       }
 
       if (result.length > 0) {
-        return res.json({alreadyExists: true});
+        return res.json({ alreadyExists: true });
       }
 
       db.query(
@@ -136,7 +140,7 @@ app.post("/signup", async (req, res) => {
           console.log(results[0].id);
           sendVerificationMail(user.email, results[0].id); // TODO: Fix mail address.
           //return res.status(200).send("Waiting verification.");
-          return res.json({foo : true});
+          return res.json({ foo: true });
         }
       );
     }
@@ -195,12 +199,15 @@ app.put("/creategroup", (req, res) => {
   return res.status(200).send("created");
 });
 
-
 app.post("/check-already-login", (req, res) => {
   // Print request body for debugging.
   console.log(req.body);
   user = dummy2;
-  user.username = req.body.username;  //Todo: fix me later.
+  user.username = req.body.username; //Todo: fix me later.
+
+  // For the debuggin profile-group page
+  user.hasGroup = true;
+
   res.json(user);
 });
 
@@ -221,7 +228,6 @@ app.post("/logout", (req, res) => {
   // Send a response
   res.json({ deletedSuccesfully: true });
 });
-
 
 app.listen(port, () => {
   console.log(`Server is up and running on port ${port}`);
