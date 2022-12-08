@@ -7,8 +7,16 @@ function StudyPage() {
   const [breakTimerStarted, setBreakTimerStarted] = useState(false);
   const [totalStudyTime, setTotalStudyTime] = useState(0);
   const [timeToSubmit, setTimeToSubmit] = useState(0);
-  const [studyTime, setStudyTime] = useState(25);
-  const [breakTime, setBreakTime] = useState(5);
+  const [studyTime, setStudyTime] = useState(() => {
+    if (localStorage.getItem("studypage-study-time"))
+      return parseInt(localStorage.getItem("studypage-study-time"));
+    else return 25;
+  });
+  const [breakTime, setBreakTime] = useState(() => {
+    if (localStorage.getItem("studypage-break-time"))
+      return parseInt(localStorage.getItem("studypage-break-time"));
+    else return 5;
+  });
   const [startButtonText, setStartButtonText] = useState("start");
   const [breakButtonText, setBreakButtonText] = useState("break");
   const [username, setUsername] = useState("foo");
@@ -211,6 +219,7 @@ function StudyPage() {
             value={studyTime}
             onChange={(e) => {
               setStudyTime(e.target.value);
+              localStorage.setItem("studypage-study-time", e.target.value);
             }}
             min="10"
             max="60"
@@ -227,6 +236,7 @@ function StudyPage() {
             value={breakTime}
             onChange={(e) => {
               setBreakTime(e.target.value);
+              localStorage.setItem("studypage-break-time", e.target.value);
             }}
             min="10"
             max="60"
