@@ -67,6 +67,10 @@ function StudyPage() {
         // Catch and print error to the console if an error happends during
         // communication with backend server
         .catch((err) => console.log(err));
+    } else {
+      // User is not loggin
+      // Navigate to login page
+      navigate("/login");
     }
   }, []);
 
@@ -125,6 +129,26 @@ function StudyPage() {
     }
   };
 
+  useEffect(() => {
+    if (timerStarted) {
+      startTimerButtonRef.current.classList.remove(
+        "bg-transparent",
+        "md:hover:bg-white",
+        "text-white",
+        "md:hover:text-slate-900"
+      );
+      startTimerButtonRef.current.classList.add("bg-white", "text-black");
+    } else {
+      startTimerButtonRef.current.classList.remove("bg-white", "text-black");
+      startTimerButtonRef.current.classList.add(
+        "bg-transparent",
+        "md:hover:bg-white",
+        "text-white",
+        "md:hover:text-slate-900"
+      );
+    }
+  }, [timerStarted]);
+
   const handleClickSettings = (e) => {
     e.preventDefault();
 
@@ -162,7 +186,7 @@ function StudyPage() {
             value={startButtonText}
             ref={startTimerButtonRef}
             onClick={handleStartButton}
-            className="text-sm md:text-base lg:text-lg xl:text-xl font-sans font-semibold border-2 bg-transparent hover:bg-white text-white hover:text-slate-900 px-4 py-2 rounded-lg transition duration-150 ease-in"
+            className="text-sm md:text-base lg:text-lg xl:text-xl font-sans font-semibold border-2  px-4 py-2 rounded-lg transition duration-150 ease-in"
           >
             {startButtonText}
           </button>
@@ -170,13 +194,13 @@ function StudyPage() {
             value={breakButtonText}
             ref={breakTimerButtonRef}
             onClick={handleBreakButton}
-            className="text-sm md:text-base lg:text-lg xl:text-xl font-sans font-semibold border-2 bg-transparent hover:bg-white text-white hover:text-slate-900 px-4 py-2 rounded-lg transition duration-150 ease-in"
+            className="text-sm md:text-base lg:text-lg xl:text-xl font-sans font-semibold border-2 bg-transparent md:hover:bg-white text-white md:hover:text-slate-900 px-4 py-2 rounded-lg transition duration-150 ease-in"
           >
             {breakButtonText}
           </button>
           <button
             onClick={handleEndButton}
-            className="text-sm md:text-base lg:text-lg xl:text-xl font-sans font-semibold border-2 bg-transparent hover:bg-white text-white hover:text-slate-900 px-4 py-2 rounded-lg transition duration-150 ease-in"
+            className="text-sm md:text-base lg:text-lg xl:text-xl font-sans font-semibold border-2 bg-transparent md:hover:bg-white text-white md:hover:text-slate-900 px-4 py-2 rounded-lg transition duration-150 ease-in"
           >
             end
           </button>
@@ -187,7 +211,7 @@ function StudyPage() {
               viewBox="0 0 24 24"
               strokeWidth="1.5"
               stroke="currentColor"
-              className="w-12 h-12 border-2 bg-transparent hover:bg-white text-white hover:text-slate-900 rounded-lg transition duration-150 ease-in"
+              className="w-12 h-12 border-2 bg-transparent md:hover:bg-white text-white md:hover:text-slate-900 rounded-lg transition duration-150 ease-in"
             >
               <path
                 strokeLinecap="round"
@@ -223,7 +247,7 @@ function StudyPage() {
             }}
             min="10"
             max="60"
-            className="w-24 text-black font-sans font-semibold text-sm md:text-base lg:text-lg xl:text-xl px-2 py-1 ml-4 rounded-lg"
+            className="w-24 text-black font-sans font-semibold text-base md:text-lg lg:text-xl xl:text-2xl px-2 py-1 ml-4 rounded-lg"
           />
         </div>
         {/* Break Timer */}
@@ -240,7 +264,7 @@ function StudyPage() {
             }}
             min="10"
             max="60"
-            className="w-24 text-black font-sans font-semibold text-sm md:text-base lg:text-lg xl:text-xl px-2 py-1 ml-4 rounded-lg"
+            className="w-24 text-black font-sans font-semibold text-base md:text-lg lg:text-xl xl:text-2xl px-2 py-1 ml-4 rounded-lg"
           />
         </div>
         {/* Change Background image */}
