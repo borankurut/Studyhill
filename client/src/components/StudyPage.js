@@ -13,9 +13,6 @@ function StudyPage() {
   // The time will been submit to the backend when it is setted.
   const [timeToSubmit, setTimeToSubmit] = useState(0);
 
-  // Study time displayed in page in format MM:SS
-  const [studyTime, setStudyTime] = useState("00:00");
-
   // Study countdown in minutes
   const [studyCountdown, setStudyCountdown] = useState(() => {
     if (localStorage.getItem("studypage-study-countdown"))
@@ -23,8 +20,10 @@ function StudyPage() {
     else return 25;
   });
 
-  // Study time displayed in page in format MM:SS
-  const [breakTime, setBreakTime] = useState("00:00");
+  // Study clock displayed in page in format MM:SS
+  const [studyTime, setStudyTime] = useState(
+    Date.now() + studyCountdown * 1000
+  );
 
   // Break countdown in minutes
   const [breakCountdown, setBreakCountdown] = useState(() => {
@@ -32,6 +31,11 @@ function StudyPage() {
       return parseInt(localStorage.getItem("studypage-break-countdown"));
     else return 5;
   });
+
+  // Break clock displayed in page in format MM:SS
+  const [breakTime, setBreakTime] = useState(
+    Date.now() + breakCountdown * 60000
+  );
 
   // Text of start button. It can be eighter study or stop
   const [startButtonText, setStartButtonText] = useState("study");
@@ -197,6 +201,14 @@ function StudyPage() {
     </span>
   );
 
+  useEffect(() => {
+    setStudyTime(Date.now() + studyCountdown * 60000);
+  }, [studyCountdown]);
+
+  useEffect(() => {
+    setBreakTime(Date.now() + breakCountdown * 60000);
+  }, [breakCountdown]);
+
   const studyClockRef = useRef();
   const breakClockRef = useRef();
   return (
@@ -209,7 +221,7 @@ function StudyPage() {
         <h1 className="text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold font-sans tracking-wide ">
           Study Timer:{" "}
           <Countdown
-            date={Date.now() + studyCountdown * 1000}
+            date={studyTime}
             autoStart={false}
             renderer={renderer}
             onComplete={() => handleStudyTimeEnd()}
@@ -219,7 +231,7 @@ function StudyPage() {
         <h1 className="text-lg md:text-xl lg:text-2xl xl:text-3xl font-semibold font-sans tracking-wide ">
           Break Timer:{" "}
           <Countdown
-            date={Date.now() + breakCountdown * 1000}
+            date={breakTime}
             autoStart={false}
             renderer={renderer}
             onComplete={() => handleBreakTimeEnd()}
