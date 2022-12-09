@@ -1,35 +1,56 @@
 import { useEffect, useState, useRef } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import Countdown from "react-countdown";
 import axios from "axios";
 
 function StudyPage() {
+  // Checks whether study timer is started or not
   const [timerStarted, setTimerStarted] = useState(false);
+
+  // Checks whether break timer is started or not
   const [breakTimerStarted, setBreakTimerStarted] = useState(false);
-  const [totalStudyTime, setTotalStudyTime] = useState(0);
+
+  // The time will been submit to the backend when it is setted.
   const [timeToSubmit, setTimeToSubmit] = useState(0);
-  const [studyTime, setStudyTime] = useState(() => {
-    if (localStorage.getItem("studypage-study-time"))
-      return parseInt(localStorage.getItem("studypage-study-time"));
+
+  // Study time displayed in page in format MM:SS
+  const [studyTime, setStudyTime] = useState("00:00");
+
+  // Study countdown in minutes
+  const [studyCountdown, setStudyCountdown] = useState(() => {
+    if (localStorage.getItem("studypage-study-countdown"))
+      return parseInt(localStorage.getItem("studypage-study-countdown"));
     else return 25;
   });
-  const [breakTime, setBreakTime] = useState(() => {
-    if (localStorage.getItem("studypage-break-time"))
-      return parseInt(localStorage.getItem("studypage-break-time"));
+
+  // Study time displayed in page in format MM:SS
+  const [breakTime, setBreakTime] = useState("00:00");
+
+  // Break countdown in minutes
+  const [breakCountdown, setBreakCountdown] = useState(() => {
+    if (localStorage.getItem("studypage-break-countdown"))
+      return parseInt(localStorage.getItem("studypage-break-countdown"));
     else return 5;
   });
-  const [startButtonText, setStartButtonText] = useState("start");
+
+  // Text of start button. It can be eighter study or stop
+  const [startButtonText, setStartButtonText] = useState("study");
+
+  // Text of start button. It can be eighter break or stop
   const [breakButtonText, setBreakButtonText] = useState("break");
-  const [username, setUsername] = useState("foo");
+
+  // id of user. It needed during sending time studied to the backend
+  const [id, setID] = useState("foo");
+
+  // Background image
   const [bgImage, setBgImage] = useState(() => {
     if (localStorage.getItem("studypage-bg-image"))
-      return "bg-" + localStorage.getItem("studypage-bg-image");
+      return localStorage.getItem("studypage-bg-image");
     else return "bg-mountain-1";
   });
 
   const navigate = useNavigate();
 
-  const startTimerButtonRef = useRef();
-  const breakTimerButtonRef = useRef();
   const settingDiv = useRef();
 
   // For the first load of the login page check
@@ -59,9 +80,8 @@ function StudyPage() {
             alert("User is not loggin!!!");
             navigate("/login");
           } else {
-            // If user already login then get the username
-            // to send time studied to correct user
-            setUsername(res.data.username);
+            // get id of user
+            setID(res.data.id);
           }
         })
         // Catch and print error to the console if an error happends during
@@ -75,46 +95,31 @@ function StudyPage() {
   }, []);
 
   // Submit studied time
-  useEffect(() => {
-    axios
-      .post("/time", { username: username, timeStudied: timeToSubmit })
-      .catch((err) => console.log(err));
-  }, [timeToSubmit]);
+  // useEffect(() => {
+  //   axios
+  //     .post("/addtime", { id: id, timeStudied: timeToSubmit })
+  //     .catch((err) => console.log(err));
+  // }, [timeToSubmit]);
 
-  // TODO
-  const startStudyTimer = () => {
-    console.log("startTimer");
-  };
-
-  // TODO
-  const stopStudyTimer = () => {
-    console.log("stopTimer");
-  };
-
-  const startBreakTimer = () => {
-    console.log("startBreakTimer");
-  };
-
-  const stopBreakTimer = () => {
-    console.log("stopBreakTimer");
-  };
-
-  const handleStartButton = () => {
+  // Starts/Stops study timer if break timer is not running
+  const handleStudyButton = () => {
+    console.log("called");
     if (breakTimerStarted) {
       alert("Break time is still running!");
     } else {
       if (timerStarted) {
-        stopStudyTimer();
         setStartButtonText("start");
         setTimerStarted(false);
+        studyClockRef.current.pause();
       } else {
-        startStudyTimer();
+        studyClockRef.current.start();
         setStartButtonText("stop");
         setTimerStarted(true);
       }
     }
   };
 
+  // Starts/Stops break timer if study timer is not running
   const handleBreakButton = (e) => {
     if (timerStarted) {
       alert("Study timer is still running");
@@ -122,33 +127,37 @@ function StudyPage() {
       if (breakTimerStarted) {
         setBreakButtonText("break");
         setBreakTimerStarted(false);
+        breakClockRef.current.pause();
       } else {
         setBreakButtonText("stop");
         setBreakTimerStarted(true);
+        breakClockRef.current.start();
       }
     }
   };
 
-  useEffect(() => {
-    if (timerStarted) {
-      startTimerButtonRef.current.classList.remove(
-        "bg-transparent",
-        "md:hover:bg-white",
-        "text-white",
-        "md:hover:text-slate-900"
-      );
-      startTimerButtonRef.current.classList.add("bg-white", "text-black");
-    } else {
-      startTimerButtonRef.current.classList.remove("bg-white", "text-black");
-      startTimerButtonRef.current.classList.add(
-        "bg-transparent",
-        "md:hover:bg-white",
-        "text-white",
-        "md:hover:text-slate-900"
-      );
-    }
-  }, [timerStarted]);
+  // Runs when study timer end
+  const handleStudyTimeEnd = () => {
+    // Change text
+    setStartButtonText("start");
+    // Set timerStarted false
+    setTimerStarted(false);
+    // Alert user that time is over
+    alert("Study time is over");
+  };
 
+  // Runs when break timer end
+  const handleBreakTimeEnd = () => {
+    // Change text
+    setBreakButtonText("break");
+    // Set breakTimerStarted false
+    setBreakTimerStarted(false);
+    // Alert user that time is over
+    alert("Break time is over");
+  };
+
+  // Setting button click event handler function
+  // Opens pop up div to display settings if time is not running.
   const handleClickSettings = (e) => {
     e.preventDefault();
 
@@ -161,6 +170,8 @@ function StudyPage() {
     }
   };
 
+  // button End click event handler
+  // navigates to the profile page if time is not running
   const handleEndButton = (e) => {
     e.preventDefault();
     if (timerStarted || breakTimerStarted) {
@@ -170,37 +181,70 @@ function StudyPage() {
     }
   };
 
+  // Helper function to renderer that adds leading 0
+  // if necessary
+  const zeroPad = (n) => {
+    if (n < 10) {
+      return "0" + n;
+    }
+    return n;
+  };
+
+  // Clock renderer
+  const renderer = ({ minutes, seconds }) => (
+    <span>
+      {zeroPad(minutes)}:{zeroPad(seconds)}
+    </span>
+  );
+
+  const studyClockRef = useRef();
+  const breakClockRef = useRef();
   return (
     <div
-      className={`relative m-0 p-0 w-full h-screen flex flex-col items-center justify-center ${bgImage} bg-fixed bg-bottom bg-no-repeat bg-cover`}
+      className={`relative m-0 p-0 w-full h-screen flex flex-col items-center justify-center ${bgImage} bg-fixed bg-bottom bg-no-repeat bg-cover overflow-hidden`}
     >
       {/* Centered Div */}
-      <div className="flex flex-col items-center justify-center gap-6 rounded-lg bg-black w-96 md:w-auto opacity-75 p-24">
+      <div className="flex flex-col items-center justify-center gap-2 rounded-lg md:w-auto w-96 bg-black/[.40] backdrop-blur-lg p-24">
         {/* Timer */}
-        <h1 className="text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-semibold font-sans tracking-wide ">
-          {studyTime}:00
+        <h1 className="text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold font-sans tracking-wide ">
+          Study Timer:{" "}
+          <Countdown
+            date={Date.now() + studyCountdown * 1000}
+            autoStart={false}
+            renderer={renderer}
+            onComplete={() => handleStudyTimeEnd()}
+            ref={studyClockRef}
+          />
+        </h1>
+        <h1 className="text-lg md:text-xl lg:text-2xl xl:text-3xl font-semibold font-sans tracking-wide ">
+          Break Timer:{" "}
+          <Countdown
+            date={Date.now() + breakCountdown * 1000}
+            autoStart={false}
+            renderer={renderer}
+            onComplete={() => handleBreakTimeEnd()}
+            ref={breakClockRef}
+          />
         </h1>
         {/* Buttons */}
-        <div className="flex gap-1 md:gap-8">
+        <div className="flex items-center justify-center gap-1 md:gap-2 mt-4">
           <button
             value={startButtonText}
-            ref={startTimerButtonRef}
-            onClick={handleStartButton}
-            className="text-sm md:text-base lg:text-lg xl:text-xl font-sans font-semibold border-2  px-4 py-2 rounded-lg transition duration-150 ease-in"
+            onClick={handleStudyButton}
+            className="text-sm md:text-base lg:text-lg xl:text-xl font-sans font-semibold border-2 bg-transparent md:hover:bg-white text-white md:hover:text-slate-900 p-2 rounded-lg transition duration-150 ease-in"
           >
             {startButtonText}
           </button>
           <button
             value={breakButtonText}
-            ref={breakTimerButtonRef}
             onClick={handleBreakButton}
-            className="text-sm md:text-base lg:text-lg xl:text-xl font-sans font-semibold border-2 bg-transparent md:hover:bg-white text-white md:hover:text-slate-900 px-4 py-2 rounded-lg transition duration-150 ease-in"
+            className="text-sm md:text-base lg:text-lg xl:text-xl font-sans font-semibold border-2 bg-transparent md:hover:bg-white text-white md:hover:text-slate-900 p-2 rounded-lg transition duration-150 ease-in"
           >
             {breakButtonText}
           </button>
           <button
             onClick={handleEndButton}
-            className="text-sm md:text-base lg:text-lg xl:text-xl font-sans font-semibold border-2 bg-transparent md:hover:bg-white text-white md:hover:text-slate-900 px-4 py-2 rounded-lg transition duration-150 ease-in"
+            className="text-sm md:text-base lg:text-lg xl:text-xl font-sans font-semibold border-2 bg-transparent md:hover:bg-white text-white md:hover:text-slate-900 p-2 rounded-lg transition duration-150 ease-in"
           >
             end
           </button>
@@ -211,7 +255,7 @@ function StudyPage() {
               viewBox="0 0 24 24"
               strokeWidth="1.5"
               stroke="currentColor"
-              className="w-12 h-12 border-2 bg-transparent md:hover:bg-white text-white md:hover:text-slate-900 rounded-lg transition duration-150 ease-in"
+              className="w-10 h-10 md:w-12 md:h-12 border-2 bg-transparent md:hover:bg-white text-white md:hover:text-slate-900 rounded-lg transition duration-150 ease-in"
             >
               <path
                 strokeLinecap="round"
@@ -231,7 +275,7 @@ function StudyPage() {
       {/* Settings pop up menu */}
       <div
         ref={settingDiv}
-        className="invisible opacity-0 absolute top-1/2 left-1/2 -translate-x-1/2 max-h-full p-6 -translate-y-1/2 w-96 md:w-1/2 bg-black text-white rounded-lg flex flex-col items-start gap-6"
+        className="invisible opacity-0 absolute top-1/2 left-1/2 -translate-x-1/2 max-h-full p-6 -translate-y-1/2 w-96 md:w-1/2 bg-black/[.40] backdrop-blur-lg text-white rounded-lg flex flex-col items-start gap-6"
       >
         {/* Study timer */}
         <div>
@@ -240,12 +284,12 @@ function StudyPage() {
           </label>
           <input
             type="number"
-            value={studyTime}
+            value={studyCountdown}
             onChange={(e) => {
-              setStudyTime(e.target.value);
-              localStorage.setItem("studypage-study-time", e.target.value);
+              setStudyCountdown(e.target.value);
+              localStorage.setItem("studypage-study-countdown", e.target.value);
             }}
-            min="10"
+            // min="10"
             max="60"
             className="w-24 text-black font-sans font-semibold text-base md:text-lg lg:text-xl xl:text-2xl px-2 py-1 ml-4 rounded-lg"
           />
@@ -257,12 +301,12 @@ function StudyPage() {
           </label>
           <input
             type="number"
-            value={breakTime}
+            value={breakCountdown}
             onChange={(e) => {
-              setBreakTime(e.target.value);
-              localStorage.setItem("studypage-break-time", e.target.value);
+              setBreakCountdown(e.target.value);
+              localStorage.setItem("studypage-break-countdown", e.target.value);
             }}
-            min="10"
+            min="0"
             max="60"
             className="w-24 text-black font-sans font-semibold text-base md:text-lg lg:text-xl xl:text-2xl px-2 py-1 ml-4 rounded-lg"
           />
@@ -279,7 +323,7 @@ function StudyPage() {
               src="./img/mountain_agri.jpg"
               alt="mountain agri"
               onClick={() => {
-                localStorage.setItem("studypage-bg-image", "mountain-1");
+                localStorage.setItem("studypage-bg-image", "bg-mountain-1");
                 setBgImage("bg-mountain-1");
               }}
             />
@@ -288,7 +332,7 @@ function StudyPage() {
               src="./img/mountain_mckinley.jpg"
               alt="mountain mckinley"
               onClick={() => {
-                localStorage.setItem("studypage-bg-image", "mountain-2");
+                localStorage.setItem("studypage-bg-image", "bg-mountain-2");
                 setBgImage("bg-mountain-2");
               }}
             />
@@ -297,7 +341,7 @@ function StudyPage() {
               src="./img/parth-savani-uCuZ9kscyuc-unsplash.jpg"
               alt="mountain savani "
               onClick={() => {
-                localStorage.setItem("studypage-bg-image", "mountain-3");
+                localStorage.setItem("studypage-bg-image", "bg-mountain-3");
                 setBgImage("bg-mountain-3");
               }}
             />
@@ -306,7 +350,7 @@ function StudyPage() {
               src="./img/stephan-bechert-xQWelDCacZE-unsplash.jpg"
               alt="a mountain from africa"
               onClick={() => {
-                localStorage.setItem("studypage-bg-image", "mountain-4");
+                localStorage.setItem("studypage-bg-image", "bg-mountain-4");
                 setBgImage("bg-mountain-4");
               }}
             />
@@ -315,7 +359,7 @@ function StudyPage() {
               src="./img/toan-chu-pKFCH2t00wA-unsplash.jpg"
               alt="a mountain from japan"
               onClick={() => {
-                localStorage.setItem("studypage-bg-image", "mountain-5");
+                localStorage.setItem("studypage-bg-image", "bg-mountain-5");
                 setBgImage("bg-mountain-5");
               }}
             />
@@ -324,7 +368,7 @@ function StudyPage() {
               src="./img/tomas-malik-orQBzc7Dl3U-unsplash.jpg"
               alt="a mountain from japan"
               onClick={() => {
-                localStorage.setItem("studypage-bg-image", "mountain-6");
+                localStorage.setItem("studypage-bg-image", "bg-mountain-6");
                 setBgImage("bg-mountain-6");
               }}
             />

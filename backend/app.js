@@ -207,8 +207,9 @@ app.post("/check-already-login", (req, res) => {
 
   // For the debuggin profile-group page
   user.hasGroup = true;
+  const user2 = { ...user, id: 1 };
 
-  res.json(user);
+  res.json(user2);
 });
 
 // Function get post method to logout user
