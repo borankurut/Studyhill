@@ -326,7 +326,12 @@ function StudyPage() {
             value={studyCountdown}
             onChange={(e) => {
               setStudyCountdown(e.target.value);
-              localStorage.setItem("studypage-study-countdown", e.target.value);
+              // Store it in localStorage if it is valid.
+              if (e.target.value > 0)
+                localStorage.setItem(
+                  "studypage-study-countdown",
+                  e.target.value
+                );
             }}
             // min="10"
             max="60"
@@ -343,7 +348,12 @@ function StudyPage() {
             value={breakCountdown}
             onChange={(e) => {
               setBreakCountdown(e.target.value);
-              localStorage.setItem("studypage-break-countdown", e.target.value);
+              // Store it in localStorage if it is valid.
+              if (e.target.value > 0)
+                localStorage.setItem(
+                  "studypage-break-countdown",
+                  e.target.value
+                );
             }}
             min="0"
             max="60"
