@@ -13,6 +13,8 @@ function StudyPage() {
   // The time will been submit to the backend when it is setted.
   const [timeToSubmit, setTimeToSubmit] = useState(0);
 
+  const [resetTimer, setResetTimer] = useState(1);
+
   // Study countdown in minutes
   const [studyCountdown, setStudyCountdown] = useState(() => {
     if (localStorage.getItem("studypage-study-countdown"))
@@ -22,7 +24,7 @@ function StudyPage() {
 
   // Study clock displayed in page in format MM:SS
   const [studyTime, setStudyTime] = useState(
-    Date.now() + studyCountdown * 1000
+    Date.now() + studyCountdown * 60000
   );
 
   // Break countdown in minutes
@@ -145,6 +147,13 @@ function StudyPage() {
 
   // Runs when study timer end
   const handleStudyTimeEnd = () => {
+    // While changing time in settings
+    // This function can invoke
+    // To avoid this check that whether timer is
+    // started or not
+    // if running keep proceed, else exit from function.
+    if (!timerStarted) return;
+
     // Change text
     setStartButtonText("start");
     // Set timerStarted false
@@ -155,16 +164,27 @@ function StudyPage() {
 
     // Alert user that time is over
     alert("Study time is over");
+
+    setResetTimer((prev) => prev + 1);
   };
 
   // Runs when break timer end
   const handleBreakTimeEnd = () => {
+    // While changing time in settings
+    // This function can invoke
+    // To avoid this check that whether timer is
+    // started or not
+    // if running keep proceed, else exit from function.
+    if (!breakTimerStarted) return;
+
     // Change text
     setBreakButtonText("break");
     // Set breakTimerStarted false
     setBreakTimerStarted(false);
     // Alert user that time is over
     alert("Break time is over");
+
+    setResetTimer((prev) => prev + 1);
   };
 
   // Setting button click event handler function
@@ -210,11 +230,11 @@ function StudyPage() {
 
   useEffect(() => {
     setStudyTime(Date.now() + studyCountdown * 60000);
-  }, [studyCountdown, breakTimerStarted]);
+  }, [studyCountdown, breakTimerStarted, resetTimer]);
 
   useEffect(() => {
     setBreakTime(Date.now() + breakCountdown * 60000);
-  }, [breakCountdown, timerStarted]);
+  }, [breakCountdown, timerStarted, resetTimer]);
 
   const studyClockRef = useRef();
   const breakClockRef = useRef();
