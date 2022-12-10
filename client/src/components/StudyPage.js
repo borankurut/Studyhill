@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Countdown from "react-countdown";
+import { useBeforeunload } from "react-beforeunload";
 import axios from "axios";
 
 function StudyPage() {
@@ -26,6 +27,9 @@ function StudyPage() {
   const [studyTime, setStudyTime] = useState(
     Date.now() + studyCountdown * 60000
   );
+
+  const [currentStudyTimerMin, setCurrentStudyTimerMin] =
+    useState(studyCountdown);
 
   // Break countdown in minutes
   const [breakCountdown, setBreakCountdown] = useState(() => {
@@ -110,6 +114,13 @@ function StudyPage() {
       .post("/addtime", { id: id, timeStudied: timeToSubmitInHours })
       .catch((err) => console.log(err));
   }, [timeToSubmit]);
+
+  // Warn user if user try to close tab while timer is still running
+  useBeforeunload((event) => {
+    if (timerStarted || breakTimerStarted) {
+      event.preventDefault();
+    }
+  });
 
   // Starts/Stops study timer if break timer is not running
   const handleStudyButton = () => {
@@ -208,6 +219,12 @@ function StudyPage() {
     if (timerStarted || breakTimerStarted) {
       alert("You cannot end study session while timer is still running");
     } else {
+      if (currentStudyTimerMin != studyCountdown) {
+        let timeStudiedInHours = (studyCountdown - currentStudyTimerMin) / 60;
+        axios
+          .post("/addtime", { id: id, timeStudied: timeStudiedInHours })
+          .catch((err) => console.log(err));
+      }
       navigate("/profile-user");
     }
   };
@@ -245,18 +262,21 @@ function StudyPage() {
       {/* Centered Div */}
       <div className="flex flex-col items-center justify-center gap-2 rounded-lg md:w-auto w-96 bg-black/[.40] backdrop-blur-lg p-24">
         {/* Timer */}
-        <h1 className="text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold font-sans tracking-wide ">
-          Study Timer:{" "}
+        <h1 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold font-sans tracking-wider ">
+          STUDY{" "}
           <Countdown
             date={studyTime}
             autoStart={false}
             renderer={renderer}
             onComplete={() => handleStudyTimeEnd()}
+            onPause={(e) => {
+              setCurrentStudyTimerMin(e.minutes);
+            }}
             ref={studyClockRef}
           />
         </h1>
-        <h1 className="text-lg md:text-xl lg:text-2xl xl:text-3xl font-semibold font-sans tracking-wide ">
-          Break Timer:{" "}
+        <h1 className="text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold font-sans tracking-wider ">
+          BREAK{" "}
           <Countdown
             date={breakTime}
             autoStart={false}
