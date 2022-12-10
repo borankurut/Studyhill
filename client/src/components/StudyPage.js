@@ -99,15 +99,18 @@ function StudyPage() {
   }, []);
 
   // Submit studied time
-  // useEffect(() => {
-  //   axios
-  //     .post("/addtime", { id: id, timeStudied: timeToSubmit })
-  //     .catch((err) => console.log(err));
-  // }, [timeToSubmit]);
+  useEffect(() => {
+    // Do not submit if time to submit is 0
+    if (!timeToSubmit) return;
+    // Else send
+    let timeToSubmitInHours = timeToSubmit / 60;
+    axios
+      .post("/addtime", { id: id, timeStudied: timeToSubmitInHours })
+      .catch((err) => console.log(err));
+  }, [timeToSubmit]);
 
   // Starts/Stops study timer if break timer is not running
   const handleStudyButton = () => {
-    console.log("called");
     if (breakTimerStarted) {
       alert("Break time is still running!");
     } else {
@@ -146,6 +149,10 @@ function StudyPage() {
     setStartButtonText("start");
     // Set timerStarted false
     setTimerStarted(false);
+
+    // Set study time for this set to send backend
+    setTimeToSubmit(studyCountdown);
+
     // Alert user that time is over
     alert("Study time is over");
   };
@@ -203,11 +210,11 @@ function StudyPage() {
 
   useEffect(() => {
     setStudyTime(Date.now() + studyCountdown * 60000);
-  }, [studyCountdown]);
+  }, [studyCountdown, breakTimerStarted]);
 
   useEffect(() => {
     setBreakTime(Date.now() + breakCountdown * 60000);
-  }, [breakCountdown]);
+  }, [breakCountdown, timerStarted]);
 
   const studyClockRef = useRef();
   const breakClockRef = useRef();
