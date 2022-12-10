@@ -415,6 +415,19 @@ function StudyPage() {
         </div>
         <button
           onClick={() => {
+            if (studyCountdown <= 0) {
+              // If studyCountdown is inconsistent
+              // Warn user and let user change it
+              alert("Invalid Study Time!!! Please enter a valid number");
+              return;
+            } else if (breakCountdown <= 0) {
+              // If breakCountdown is inconsistent
+              // Warn user and let user change it
+              alert("Invalid Break Time!!! Please enter a valid number");
+              return;
+            }
+
+            // Close settings pop up div
             settingDiv.current.classList.add("invisible", "opacity-0");
           }}
           className="p-4 bg-white text-black w-24 hover:bg-slate-300  font-semibold font-sans text-sm md:text-base lg:text-lg xl:text-xl rounded-lg self-center transition duration-150 ease-in"
