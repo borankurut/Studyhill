@@ -201,19 +201,34 @@ app.put("/creategroup", (req, res) => {
   return res.status(200).send("created");
 });
 
-app.post("/check-already-login", async (req, res) => {
+app.post("/check-already-login", (req, res) => {  // todo: deviceId part.
   // Print request body for debugging.
   console.log(req.body);
   const username = req.body.username;
 
   // device id is not checked currently for debug purposes.
-  // the user found is returned.
+  // the user found from username directly returned.
 
   User.findUserUsername(username, async function callback(u){
-    console.log(u);
+     //hardcodded parts are necessery for frontend to work, 
+     //they are gonna be changed after database implementation.
+    u.isEmailVerified = u.verified; 
+    // verified can be changed in database to 'isemailverified' later to prevent complexity.
+
+    u.verification = true;
     u.hasGroup = true;
-    res.json(u);
+    u.groupName = 'g1';
+    u.tasks = ["t1", "t2"];
+
+    u.weeklyHours= {monday: 4,tuesday: 3,wednesday: 5,
+      thursday: 3,friday: 6,saturday: 4,sunday: 1};
+
+    u.badges = ["b1", "b2"];
+    u.uniqeDeviceID = "ASDFA0000FDF1223";
+
+    return res.json(u);
   })
+
 });
 
 // Function get post method to logout user
@@ -242,7 +257,7 @@ app.post("/addtime", (req, res) =>{
 
   const id = req.body.id;
 
-  addStudyTime(id, new Date(), timeStudied)
+  addStudyTime(id, new Date(), timeStudied)   
 })
 
 app.listen(port, () => {
