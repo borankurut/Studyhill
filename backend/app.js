@@ -4,7 +4,7 @@ const app = express();
 
 const path = require("path");
 
-const { Group, User } = require("./userAndGroup.js");
+const { Group, User , addStudyTime} = require("./userAndGroup.js");
 
 const { logger } = require("./logger.js");
 
@@ -125,6 +125,7 @@ app.post("/signup", async (req, res) => {
           password: user.password,
           groupCode: user.groupCode,
           verified: user.verified,
+          totalStudyTime: 0
         },
         (error, results) => {
           if (error) {
@@ -165,6 +166,7 @@ app.get("/verify", function (req, res) {
         }
       }
     );
+    User.createWeeklyTable(userId);
 
     return res.status(200).send("verified.");
   } catch (e) {
@@ -175,11 +177,11 @@ app.get("/verify", function (req, res) {
 app.put("/joingroup", (req, res) => {
   const { id, groupCode } = req.body;
   const toJoin = groups.find((g) => g.code === groupCode);
-  if (!toJoin) return res.status(400).send("Invalid Code");
+  if (!toJoin) return res.status(400).send("Invalid Code"); // send message if eror.
 
   const user = users.find((u) => u.id === id);
 
-  if (!user) return res.status(400).send("Invalid id");
+  if (!user) return res.json({msg: "Invalid id"});
 
   user.joinGroup(toJoin.code);
 
@@ -199,17 +201,19 @@ app.put("/creategroup", (req, res) => {
   return res.status(200).send("created");
 });
 
-app.post("/check-already-login", (req, res) => {
+app.post("/check-already-login", async (req, res) => {
   // Print request body for debugging.
   console.log(req.body);
-  user = dummy2;
-  user.username = req.body.username; //Todo: fix me later.
+  const username = req.body.username;
 
-  // For the debuggin profile-group page
-  user.hasGroup = true;
-  const user2 = { ...user, id: 1 };
+  // device id is not checked currently for debug purposes.
+  // the user found is returned.
 
-  res.json(user2);
+  User.findUserUsername(username, async function callback(u){
+    console.log(u);
+    u.hasGroup = true;
+    res.json(u);
+  })
 });
 
 // Function get post method to logout user
@@ -230,6 +234,18 @@ app.post("/logout", (req, res) => {
   res.json({ deletedSuccesfully: true });
 });
 
+app.post("/addtime", (req, res) =>{
+  console.log(req.body);
+  
+  let timeStudied = req.body.timeStudied;
+  timeStudied *= 60;
+
+  const id = req.body.id;
+
+  addStudyTime(id, new Date(), timeStudied)
+})
+
 app.listen(port, () => {
   console.log(`Server is up and running on port ${port}`);
 });
+

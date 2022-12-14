@@ -80,6 +80,37 @@ class User {
         return callback(result[0]);
       });
   }
+
+  static findUserUsername(username, callback){
+    db.query(
+      "SELECT * FROM users WHERE username = ?",
+      [username],
+      async (error, result) => {
+        if(error)
+          throw error;
+        return callback(result[0]);
+      });
+  }
+
+  static createWeeklyTable(id){
+    const userId = id;
+    const sql = `CREATE TABLE snowhill.weeklystudy_id_${userId}(`+
+    `id_weeklystudy INT AUTO_INCREMENT,` +
+    `monday INT NULL,`+
+    `tuesday INT NULL,`+
+    `wednesday INT NULL,`+
+    `thursday INT NULL,`+
+    `friday INT NULL,`+
+    `saturday INT NULL,`+
+    `sunday INT NULL,`+
+    `date DATE NULL,`+
+    `PRIMARY KEY (id_weeklystudy));`;
+        
+    db.query(sql, function (error, result){
+      if(error)
+      throw error;
+    });
+  }
 }
 
 class Group {
@@ -141,4 +172,95 @@ class Group {
   }
 }
 
-module.exports = {User, Group};
+// User.findUserEmail("borankurut@gmail.com", function callback(user){
+//   console.log(user);
+//   printMe = `member_${user.id}`;
+//   console.log(printMe);
+// })
+
+function dateToStr(d){
+  const year = d.getFullYear();
+  const month = d.getMonth() + 1; // Months start at 0!
+  const day = d.getDate();
+
+  return `${year}-${month}-${day}`;
+}
+
+
+function findLastMonday(date){
+  let d = new Date(date);
+  
+  while(d.getDay() != 1)
+    d.setDate(d.getDate() - 1);
+
+  return dateToStr(d);
+}
+
+function weeklyDataOfDate(id, date, callback){ // date = 'yyyy-mm-dd'
+  db.query(
+    `SELECT * FROM weeklystudy_id_${id} WHERE date = ?`,
+    [date],
+    async (error, results) => {
+      if(error)
+        throw error;
+      callback(results[0]);
+    }
+  );
+}
+
+// weeklyDataOfDate('2022-12-12',function cb(date){
+//   console.log(date);
+//   console.log(date.id1_weeklystudy);
+// });
+
+
+// todo: studytime is gonna be added to the userTotal too.
+function addStudyTime(id, date, studiedMinutes){
+  const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+  let lastMonday = findLastMonday(date);
+  const currentDay = days[date.getDay()];
+
+  console.log(lastMonday, currentDay, `toaddtime: ${studiedMinutes}`);  
+  weeklyDataOfDate(id, lastMonday, function callback(weeklyData){
+    if(weeklyData === undefined){
+      db.query(`INSERT INTO weeklystudy_id_${id} SET ?`, { 
+        date: lastMonday, [currentDay]:studiedMinutes}, (error, result)=>{
+        if (error)
+          throw error;
+      });
+    }
+    else{
+      currentTime = weeklyData[currentDay];
+      if(currentTime === null)
+        currentTime = studiedMinutes;
+      else
+        currentTime += studiedMinutes;
+
+      User.findUserId(id, function callback(u){
+        let total = u.totalStudyTime;
+        total += currentTime;
+
+        db.query(`UPDATE users SET totalStudyTime = ${total} WHERE id = ${u.id}`, (error, result)=>{
+          console.log(u.id);
+          if(error)
+            throw error;
+        });
+
+      });
+
+      db.query(`UPDATE weeklystudy_id_${id} SET ${currentDay} = ${currentTime} WHERE date = ?`,
+      [lastMonday], (error, results) =>{
+        if(error)
+          throw error;
+      });
+
+      console.log('currentTime31 ', currentTime);
+    }
+  });
+}
+
+let toAddDate = new Date();
+toAddDate.setDate(toAddDate.getDate() + 10);
+addStudyTime(11, toAddDate, 100);
+
+module.exports = {User, Group, addStudyTime};
