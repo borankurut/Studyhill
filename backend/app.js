@@ -4,7 +4,7 @@ const app = express();
 
 const path = require("path");
 
-const { Group, User , addStudyTime} = require("./userAndGroup.js");
+const { Group, User , addStudyTime, findLastMonday} = require("./userAndGroup.js");
 
 const { logger } = require("./logger.js");
 
@@ -63,7 +63,7 @@ app.post("/login", async (req, res) => {
     async (error, results) => {
       if (error) {
         console.log(error);
-        return res.status(400).send(error.toString());
+        return res.json({msg: error.toString()});
       }
 
       if (
@@ -110,7 +110,7 @@ app.post("/signup", async (req, res) => {
     async (error, result) => {
       if (error) {
         console.log(error);
-        return res.status(400).send(error.toString());
+        return res.json({msg: error.toString()});
       }
 
       if (result.length > 0) {
@@ -139,9 +139,8 @@ app.post("/signup", async (req, res) => {
         [email],
         async (error, results) => {
           console.log(results[0].id);
-          sendVerificationMail(user.email, results[0].id); // TODO: Fix mail address.
-          //return res.status(200).send("Waiting verification.");
-          return res.json({ foo: true });
+          sendVerificationMail(user.email, results[0].id); 
+          return res.json({ msg: "Waiting verification."});
         }
       );
     }
@@ -168,16 +167,16 @@ app.get("/verify", function (req, res) {
     );
     User.createWeeklyTable(userId);
 
-    return res.status(200).send("verified.");
+    return res.json({msg:'mail verified'});
   } catch (e) {
-    return res.status(400).send(e.toString());
+    return res.json({msg:e.toString()});
   }
 });
 
 app.put("/joingroup", (req, res) => {
   const { id, groupCode } = req.body;
   const toJoin = groups.find((g) => g.code === groupCode);
-  if (!toJoin) return res.status(400).send("Invalid Code"); // send message if eror.
+  if (!toJoin) return res.json({msg:"Invalid Code"}); // send message if eror.
 
   const user = users.find((u) => u.id === id);
 
@@ -185,20 +184,20 @@ app.put("/joingroup", (req, res) => {
 
   user.joinGroup(toJoin.code);
 
-  return res.status(200).send("added");
+  return res.json({msg: "Added"});
 });
 
 app.put("/creategroup", (req, res) => {
   const { id, maxSize } = req.body;
 
   const user = users.find((u) => u.id === id);
-  if (!user) return res.status(400).send("Id is not valid.");
+  if (!user) return res.json({msg: "Invalid id"});
 
   if (maxSize < 2 || maxSize > 8)
-    return res.status(400).send("size is not valid");
+    return res.json({msg: "size is not valid"});
 
   groups.push(new Group(user, maxSize));
-  return res.status(200).send("created");
+  return res.json({msg: "created"});
 });
 
 app.post("/check-already-login", (req, res) => {  // todo: deviceId part.
@@ -216,17 +215,24 @@ app.post("/check-already-login", (req, res) => {  // todo: deviceId part.
     // verified can be changed in database to 'isemailverified' later to prevent complexity.
 
     u.verification = true;
-    u.hasGroup = true;
+    u.hasGroup = false;
     u.groupName = 'g1';
     u.tasks = ["t1", "t2"];
 
-    u.weeklyHours= {monday: 4,tuesday: 3,wednesday: 5,
-      thursday: 3,friday: 6,saturday: 4,sunday: 1};
+    u.weeklyGoal = 10;
 
     u.badges = ["b1", "b2"];
     u.uniqeDeviceID = "ASDFA0000FDF1223";
-
-    return res.json(u);
+    
+    User.weeklyDataOfDate(u.id, findLastMonday(new Date()), function cb(d){
+      console.log(u.id);
+      for(let day in d){
+        if(d[day] === null)
+         d[day] = 0;
+      }
+      u.weeklyHours = d;
+      return res.json(u);
+    })
   })
 
 });

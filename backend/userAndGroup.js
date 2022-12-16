@@ -111,6 +111,21 @@ class User {
       throw error;
     });
   }
+
+  static weeklyDataOfDate(id, date, callback){ // date = 'yyyy-mm-dd'
+    db.query(
+      `SELECT * FROM weeklystudy_id_${id} WHERE date = ?`,
+      [date],
+      async (error, results) => {
+        if(error)
+          throw error;
+        if(results[0] === null){  
+          results[0] = ({monday: 0,tuesday: 0,wednesday: 0,thursday: 0,friday: 0,saturday: 0,sunday: 0});
+        }
+        callback(results[0]);
+      }
+    );
+  }
 }
 
 class Group {
@@ -196,18 +211,6 @@ function findLastMonday(date){
   return dateToStr(d);
 }
 
-function weeklyDataOfDate(id, date, callback){ // date = 'yyyy-mm-dd'
-  db.query(
-    `SELECT * FROM weeklystudy_id_${id} WHERE date = ?`,
-    [date],
-    async (error, results) => {
-      if(error)
-        throw error;
-      callback(results[0]);
-    }
-  );
-}
-
 // weeklyDataOfDate('2022-12-12',function cb(date){
 //   console.log(date);
 //   console.log(date.id1_weeklystudy);
@@ -221,7 +224,7 @@ function addStudyTime(id, date, studiedMinutes){
   const currentDay = days[date.getDay()];
 
   console.log(lastMonday, currentDay, `toaddtime: ${studiedMinutes}`);  
-  weeklyDataOfDate(id, lastMonday, function callback(weeklyData){
+  User.weeklyDataOfDate(id, lastMonday, function callback(weeklyData){
     if(weeklyData === undefined){
       db.query(`INSERT INTO weeklystudy_id_${id} SET ?`, { 
         date: lastMonday, [currentDay]:studiedMinutes}, (error, result)=>{
@@ -263,4 +266,4 @@ let toAddDate = new Date();
 toAddDate.setDate(toAddDate.getDate() + 10);
 addStudyTime(11, toAddDate, 100);
 
-module.exports = {User, Group, addStudyTime};
+module.exports = {User, Group, addStudyTime, findLastMonday};
