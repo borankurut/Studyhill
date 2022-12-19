@@ -262,8 +262,4 @@ function addStudyTime(id, date, studiedMinutes){
   });
 }
 
-let toAddDate = new Date();
-toAddDate.setDate(toAddDate.getDate() + 10);
-addStudyTime(11, toAddDate, 100);
-
 module.exports = {User, Group, addStudyTime, findLastMonday};

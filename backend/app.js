@@ -12,7 +12,7 @@ const {
   sendVerificationMail,
   decodeRegistrationToken,
 } = require("./mailVerification");
-const { cryptPassword, comparePassword } = require("./encodeAndDecode");
+const { cryptPassword, comparePassword, decodeTokenPassword, encodeTokenPassword } = require("./encodeAndDecode");
 
 const port = 3001;
 
@@ -50,50 +50,81 @@ app.use(express.json());
 const cors = require("cors");
 app.use(cors());
 
-const { dummy1, dummy2 } = require("./dummyUsers");
-
 app.post("/login", async (req, res) => {
   console.log(req.body);
   const { email, password } = req.body;
-
-  db.query(
-    //todo: codes here are gonna be fixed after refactoring usersAndGroup.js
-    "SELECT * FROM users WHERE email = ?",
-    [email],
-    async (error, results) => {
-      if (error) {
-        console.log(error);
-        return res.json({msg: error.toString()});
-      }
-
-      if (
-        !results[0] ||
-        !(await comparePassword(password, results[0].password))
-      ) {
-        // user not found
-        return res.json({ verification: false });
-      }
-
-      const isUserVerified = results[0].verified;
-      const username = results[0].username;
-
-      // user found and pass is valid.  HARD CODED!!! FIX LATER!!!
-      if (isUserVerified) {
-        const toReturn = dummy2;
-        toReturn.verification = true;
-        toReturn.mailVerified = true;
-        toReturn.username = username;
-        return res.json(toReturn);
-      } else
-        return res.json({
-          verification: true,
-          mailVerified: false,
-          username: username,
-        });
-
-      // user not found or password is not valid.
+  User.findUserEmail(email, async function cb(u){
+    if (
+      !u||
+      !(await comparePassword(password, u.password))
+    ) {
+      // user not found
+      return res.json({ verification: false });
     }
-  );
+    addStudyTime(u.id, new Date(), 0);    // create that weeks table when user logged in.
+    u.mailVerified = u.verified;           
+    u.verification = true;
+
+     // todo: this part is hardcoded here and in check-already part too
+     // this part is gonna be linked to the database later.
+    u.hasGroup = true;
+    u.groupName = 'g1';
+    u.tasks = ["t1", "t2"];
+    u.weeklyGoal = 10;
+    u.badges = ["b1", "b2"];
+    u.uniqeDeviceID = encodeTokenPassword(u.password);
+    
+    User.weeklyDataOfDate(u.id, findLastMonday(new Date()), function cb(d){
+      console.log(u.id);
+      for(let day in d){
+        if(d[day] === null)
+        d[day] = 0;
+      }
+      u.weeklyHours = d;
+      return res.json(u);
+    })
+  })
+});
+
+app.post("/check-already-login", (req, res) => {  // todo: deviceId part.
+  // Print request body for debugging.
+  console.log(req.body);
+  const username = req.body.username;
+  const uniqeDeviceID = req.body.uniqeDeviceID
+
+  // device id is not checked currently for debug purposes.
+  // the user found from username directly returned.
+
+  User.findUserUsername(username, async function callback(u){
+    if(u.password != decodeTokenPassword(uniqeDeviceID))
+      return res.json({verification: false});
+    addStudyTime(u.id, new Date(), 0);    // create that weeks table when user logged in.
+    u.mailVerified = u.verified;
+    u.verification = true;
+
+     //hardcodded parts are necessery for frontend to work, 
+     //they are gonna be changed after database implementation.
+    u.hasGroup = true;
+    u.groupName = 'g1';
+    u.tasks = ["t1", "t2"];
+
+    u.weeklyGoal = 10;
+
+    u.badges = ["b1", "b2"];
+    u.uniqeDeviceID = "ASDFA0000FDF1223";
+    
+    User.weeklyDataOfDate(u.id, findLastMonday(new Date()), function cb(d){
+      console.log(u.id);
+      for(let day in d){
+        if(d[day] === null)
+         d[day] = 0;
+        d[day] = d[day] / 60;
+      }
+      u.weeklyHours = d;
+      return res.json(u);
+    })
+  })
+
 });
 
 app.post("/signup", async (req, res) => {
@@ -140,6 +171,7 @@ app.post("/signup", async (req, res) => {
         async (error, results) => {
           console.log(results[0].id);
           sendVerificationMail(user.email, results[0].id); 
+          User.createWeeklyTable(results[0].id);
           return res.json({ msg: "Waiting verification."});
         }
       );
@@ -165,7 +197,6 @@ app.get("/verify", function (req, res) {
         }
       }
     );
-    User.createWeeklyTable(userId);
 
     return res.json({msg:'mail verified'});
   } catch (e) {
@@ -200,43 +231,6 @@ app.put("/creategroup", (req, res) => {
   return res.json({msg: "created"});
 });
 
-app.post("/check-already-login", (req, res) => {  // todo: deviceId part.
-  // Print request body for debugging.
-  console.log(req.body);
-  const username = req.body.username;
-
-  // device id is not checked currently for debug purposes.
-  // the user found from username directly returned.
-
-  User.findUserUsername(username, async function callback(u){
-     //hardcodded parts are necessery for frontend to work, 
-     //they are gonna be changed after database implementation.
-    u.isEmailVerified = u.verified; 
-    // verified can be changed in database to 'isemailverified' later to prevent complexity.
-
-    u.verification = true;
-    u.hasGroup = false;
-    u.groupName = 'g1';
-    u.tasks = ["t1", "t2"];
-
-    u.weeklyGoal = 10;
-
-    u.badges = ["b1", "b2"];
-    u.uniqeDeviceID = "ASDFA0000FDF1223";
-    
-    User.weeklyDataOfDate(u.id, findLastMonday(new Date()), function cb(d){
-      console.log(u.id);
-      for(let day in d){
-        if(d[day] === null)
-         d[day] = 0;
-      }
-      u.weeklyHours = d;
-      return res.json(u);
-    })
-  })
-
-});
-
 // Function get post method to logout user
 // by simple removing unique device id from user
 // and returns a simple information as response.
@@ -269,4 +263,3 @@ app.post("/addtime", (req, res) =>{
 app.listen(port, () => {
   console.log(`Server is up and running on port ${port}`);
 });
-
