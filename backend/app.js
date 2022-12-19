@@ -49,6 +49,7 @@ app.use(express.json());
 // server, which is port 3000, and backend server, port 3001.
 const cors = require("cors");
 const { CLIENT_RENEG_WINDOW } = require("tls");
+const e = require("express");
 app.use(cors());
 
 app.post("/login", async (req, res) => {
@@ -219,17 +220,17 @@ app.get("/verify", function (req, res) {
 
 app.put("/joingroup", (req, res) => {
   const { id, groupCode } = req.body;
-  Group.findGroup(groupCode, id, function cb(g){
+  Group.findGroup(groupCode, function cb(g){
     if (!g) 
       return res.json({msg:"Invalid Code"}); // send message if eror.
-    if(Group.isFull(g))
+
+    if(g.memberCount >= g.maxSize)
       return res.json({msg:"Group is full"});
-    
+    else{
+        Group.addMember(g.groupCode, id);
+        return res.json({msg: "Added"});
+    }
   });
-
-  user.joinGroup(toJoin.code);
-
-  return res.json({msg: "Added"});
 });
 
 app.put("/creategroup", (req, res) => {

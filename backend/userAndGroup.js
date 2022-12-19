@@ -200,7 +200,7 @@ class Group {
   }
   
   static discardMember(id){
-    
+
   }
 
   static makeGroupCode(length = 4) {
@@ -210,12 +210,6 @@ class Group {
         result += characters[Math.floor(Math.random() * characters.length)];
     }
     return result;
-  }
-
-  static isFull(groupCode){
-    Group.findGroup(groupCode, function cb(g){
-      g.memberCount < maxSize;
-    })
   }
 
   static findGroup(groupCode, cb){
