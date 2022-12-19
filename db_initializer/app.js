@@ -9,7 +9,7 @@ const db = mysql.createConnection({
 db.connect(function(err) {
     if (err) throw err;
     console.log("Connected!");
-    db.query("CREATE DATABASE snowhill", function (err, result) {
+    db.query("CREATE DATABASE snowhilltest", function (err, result) {
         if (err) throw err;
         console.log("Database created");
       
@@ -17,7 +17,7 @@ db.connect(function(err) {
         if (err) throw err;
         console.log("User altered and password to db is 1234");
 
-        const userTableSQL = `CREATE TABLE snowhill.users (` +
+        const userTableSQL = `CREATE TABLE snowhilltest.users (` +
         `id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,` +
         `username VARCHAR(255),` +
         `email VARCHAR(255),` +
@@ -30,17 +30,46 @@ db.connect(function(err) {
             if(error)
             throw error;
             console.log("User table created");
-          });
 
-        //TODO: create group table
+            //add first record
 
-        
+            const firstUserSQL = `INSERT INTO snowhilltest.users (id, username, email, password, groupCode, verified, totalStudyTime)` +
+            `VALUES (1, "firstUser", "firstUser@gmail.com", "firstPass", "AAAA", 0, 0);`;
+
+            db.query(firstUserSQL, function (error, result){
+                if(error)
+                    throw error;
+                console.log("First entry for users is added");                
+              });
+
+
+            const groupTableSQL = `CREATE TABLE snowhilltest.groups (` +
+            `id_groups INT NOT NULL PRIMARY KEY AUTO_INCREMENT,` +
+            `groupCode VARCHAR(255),` +
+            `groupName VARCHAR(255),` +
+            `maxSize INT,` +
+            `memberCount INT);`;
+
+            db.query(groupTableSQL, function (error, result){
+                if(error)
+                throw error;
+                console.log("Groups table created");
+
+                const firstGroupSQL = `INSERT INTO snowhilltest.groups (id_groups, groupCode, groupName, maxSize, memberCount)` +
+                `VALUES (1, "AAAA", "firstGroup", 1, 1);`;
+
+                db.query(firstGroupSQL, function (error, result){
+                if(error)
+                    throw error;
+                console.log("First entry for groups is added");                
+                });
+                
+              });
+
+          });        
         
         });
         
     });
     
 });
-
-//alter user 'root'@'localhost' identified with mysql_native_password by '1234';
-
