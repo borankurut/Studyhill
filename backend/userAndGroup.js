@@ -129,69 +129,105 @@ class User {
 }
 
 class Group {
-  constructor(admin, maxSize){ 
-    this.admin = admin;
-    this.members = [];
+  constructor(maxSize, groupName, groupCode){ 
     this.maxSize = maxSize;
-    do{  
-      this.code = Group.makeGroupCode();
-    }
-    while(groups.some(g => g.code === this.code));
+    this.groupName = groupName;
+    this.groupCode = groupCode;
+  }
 
-    this.addMember(admin);
+  static createGroup(id, maxSize, groupName){
+    let groupCode = Group.makeGroupCode();
+
+    Group.findGroup(groupCode, function callback(g){
+      if(g){
+        createGroup(id, maxSize, groupName);
+        return;
+      }
+
+      db.query("INSERT INTO snowhill.groups SET ?",
+      {
+        groupCode: groupCode,
+        groupName: groupName,
+        maxSize: maxSize,
+        memberCount: 0
+      },
+      (error, results)=>{
+        if(error){
+          throw error;
+        }
+      })
+    });
+    const sql = `CREATE TABLE snowhill.group_table_code_${groupCode}(`+
+    `id_group_table_code INT NOT NULL PRIMARY KEY AUTO_INCREMENT,` +
+    'member_user_id INT,' +
+    'studyTime INT,' +
+    'username VARCHAR(255));';
+        
+    db.query(sql, function (error, result){
+      if(error)
+        throw error;
+    });
+    Group.addMember(groupCode, id); //adding the admin.
+  }
+
+  static addMember(groupCode, id){
+
+    User.findUserId(id, function cb(u){
+      db.query(`INSERT INTO snowhill.group_table_code_${groupCode} SET ?`,
+      {
+        member_user_id: u.id,
+        studyTime: 0,
+        username: u.username
+        
+      },function (error, result){
+          if(error)
+            throw error;
+          Group.findGroup(groupCode, function cb(g) {
+            let newCount = g.memberCount + 1;
+            db.query(`UPDATE snowhill.groups SET memberCount = ${newCount} WHERE groupCode = "${groupCode}"`,
+            (error, result) => {
+              if(error)
+                throw error;
+              db.query(`UPDATE snowhill.users SET groupCode = "${groupCode}" WHERE id = ${u.id}`, 
+              (error, result)=>{
+                if(error) 
+                  throw error;
+              })
+            })
+        })
+      })
+    })
   }
   
-  get size() {return this.members.length;}
-
-  addMember(user){
-    if(user.groupCode != '0')
-      throw new Error('User is already in a group');  // same or different.
-
-    if(this.size < this.maxSize){
-      this.members.push(user);
-      user.groupCode = this.code;
-    }
-    else 
-      throw new Error('Group is full.');
-  }
-  
-  discardMember(user){  // todo: fix me.
-    if(!this.members.includes(user))
-      throw new Error('User is not in the group');
-      
-    this.members = this.members.filter((member) => member != user);
-
-    if(user.id === this.admin.id && this.size > 0) // user is admin and there are members
-      this.admin = this.members[0];   // make the next user admin
-
-    user.groupCode = '0';
-
-    // if group is empty delete it.
-    if(this.size === 0){
-      const ix = groups.indexOf(groups.find(g => g.code === this.code));
-      groups.splice(ix, 1);
-    }
+  static discardMember(id){
+    
   }
 
-  static makeGroupCode(length = 6) {
+  static makeGroupCode(length = 4) {
     let result = '';
-    let characters = '0123456789';
+    let characters = '0123456789abcdefghijklmnoprstuvyzwqx';
     for (let i = 0; i < length; ++i) {
         result += characters[Math.floor(Math.random() * characters.length)];
     }
     return result;
   }
 
-  static checkSize(size){
-    return true;  //todo check the size.
+  static isFull(groupCode){
+    Group.findGroup(groupCode, function cb(g){
+      g.memberCount < maxSize;
+    })
+  }
+
+  static findGroup(groupCode, cb){
+    console.log(groupCode);
+    db.query("SELECT * FROM snowhill.groups WHERE groupCode = ?", [groupCode], 
+    async (error, result) => {
+      if(error)
+        throw error;
+      return cb(result[0]);
+    })
   }
 }
-
-// User.findUserEmail("borankurut@gmail.com", function callback(user){
-//   console.log(user);
-//   printMe = `member_${user.id}`;
-//   console.log(printMe);
-// })
 
 function dateToStr(d){
   const year = d.getFullYear();
@@ -241,7 +277,7 @@ function addStudyTime(id, date, studiedMinutes){
 
       User.findUserId(id, function callback(u){
         let total = u.totalStudyTime;
-        total += currentTime;
+        total += studiedMinutes;
 
         db.query(`UPDATE users SET totalStudyTime = ${total} WHERE id = ${u.id}`, (error, result)=>{
           console.log(u.id);
@@ -256,10 +292,8 @@ function addStudyTime(id, date, studiedMinutes){
         if(error)
           throw error;
       });
-
-      console.log('currentTime31 ', currentTime);
     }
   });
 }
 
-module.exports = {User, Group, addStudyTime, findLastMonday};
+module.exports = {User, Group, addStudyTime, findLastMonday, dateToStr};

@@ -4,7 +4,7 @@ const app = express();
 
 const path = require("path");
 
-const { Group, User , addStudyTime, findLastMonday} = require("./userAndGroup.js");
+const { Group, User , addStudyTime, findLastMonday, dateToStr} = require("./userAndGroup.js");
 
 const { logger } = require("./logger.js");
 
@@ -48,6 +48,7 @@ app.use(express.json());
 // cors library are required for communication between client
 // server, which is port 3000, and backend server, port 3001.
 const cors = require("cors");
+const { CLIENT_RENEG_WINDOW } = require("tls");
 app.use(cors());
 
 app.post("/login", async (req, res) => {
@@ -104,7 +105,7 @@ app.post("/check-already-login", (req, res) => {  // todo: deviceId part.
 
      //hardcodded parts are necessery for frontend to work, 
      //they are gonna be changed after database implementation.
-    u.hasGroup = true;
+    u.hasGroup = false;                          ;
     u.groupName = 'g1';
     u.tasks = ["t1", "t2"];
 
@@ -132,6 +133,7 @@ app.post("/signup", async (req, res) => {
   const { email, username, password } = req.body;
 
   const user = new User(email, username, await cryptPassword(password));
+  
   //mysql REGISTER
 
   db.query(
@@ -147,6 +149,9 @@ app.post("/signup", async (req, res) => {
       if (result.length > 0) {
         return res.json({ alreadyExists: true });
       }
+      User.findUserUsername(username, function cb(u){
+      if(u)
+        return res.json({alreadyExists: true});
 
       db.query(
         "INSERT INTO users SET ?",
@@ -175,9 +180,17 @@ app.post("/signup", async (req, res) => {
           return res.json({ msg: "Waiting verification."});
         }
       );
+      })
     }
   );
 });
+
+app.get("/weekly-data-of", function(req, res){
+  const {id, date} = req.body;
+  User.weeklyDataOfDate(id, dateToStr(date), function callback(d){
+    return res.json(d);
+  });
+})
 
 app.get("/verify", function (req, res) {
   try {
@@ -206,12 +219,13 @@ app.get("/verify", function (req, res) {
 
 app.put("/joingroup", (req, res) => {
   const { id, groupCode } = req.body;
-  const toJoin = groups.find((g) => g.code === groupCode);
-  if (!toJoin) return res.json({msg:"Invalid Code"}); // send message if eror.
-
-  const user = users.find((u) => u.id === id);
-
-  if (!user) return res.json({msg: "Invalid id"});
+  Group.findGroup(groupCode, id, function cb(g){
+    if (!g) 
+      return res.json({msg:"Invalid Code"}); // send message if eror.
+    if(Group.isFull(g))
+      return res.json({msg:"Group is full"});
+    
+  });
 
   user.joinGroup(toJoin.code);
 
@@ -219,16 +233,19 @@ app.put("/joingroup", (req, res) => {
 });
 
 app.put("/creategroup", (req, res) => {
-  const { id, maxSize } = req.body;
-
-  const user = users.find((u) => u.id === id);
-  if (!user) return res.json({msg: "Invalid id"});
+  const { id, maxSize, groupName } = req.body;
+  console.log(req.body);
 
   if (maxSize < 2 || maxSize > 8)
     return res.json({msg: "size is not valid"});
 
-  groups.push(new Group(user, maxSize));
-  return res.json({msg: "created"});
+  User.findUserId(id, function cb(u){
+    if (!u) return res.json({msg: "Invalid id"});
+
+    Group.createGroup(id, maxSize, groupName);
+    return res.json({msg: "created"});
+  });
+
 });
 
 // Function get post method to logout user

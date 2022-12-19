@@ -38,6 +38,20 @@ function decodeRegistrationToken(token)
     return {userId};
 }
 
+function decodeTokenPassword(passwordToken){
+  const jwt = require('jsonwebtoken');
+  let decoded = jwt.verify(passwordToken, secretKey);
+  let pass = decoded.pass;
+  return pass;
+}
+
+function encodeTokenPassword(passwordHashed){
+  const jwt = require('jsonwebtoken');
+  let info = {pass: passwordHashed};
+  const token = jwt.sign(info, secretKey);
+  return token;
+}
+
 const bcrypt = require('bcryptjs');
 
 async function cryptPassword(password) {
@@ -49,4 +63,4 @@ async function comparePassword(password, hashed) {
   return result;
 }
 
-module.exports = {encodeRegistrationToken, decodeRegistrationToken, cryptPassword, comparePassword};
+module.exports = {encodeRegistrationToken, decodeRegistrationToken, cryptPassword, comparePassword, decodeTokenPassword, encodeTokenPassword};
