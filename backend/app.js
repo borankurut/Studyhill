@@ -226,11 +226,31 @@ app.put("/joingroup", (req, res) => {
 
     if(g.memberCount >= g.maxSize)
       return res.json({msg:"Group is full"});
+    
+    
     else{
-        Group.addMember(g.groupCode, id);
-        return res.json({msg: "Added"});
+        User.findUserId(id, function cb2(u){
+          if(u.groupCode != '0')
+            return res.json({msg:"User is already in a group."});
+          else{
+            Group.addMember(g.groupCode, id);
+            return res.json({msg: "Added"});
+          }
+        })
     }
   });
+});
+
+app.put("/leavegroup", (req, res) => {
+  const {id} = req.body;
+
+  try{
+    Group.discardMember(id);
+    res.json({msg:"Leaved"});
+  }
+  catch(e){
+    res.json(e.toString());
+  }
 });
 
 app.put("/creategroup", (req, res) => {
@@ -275,7 +295,7 @@ app.post("/addtime", (req, res) =>{
 
   const id = req.body.id;
 
-  addStudyTime(id, new Date(), timeStudied)   
+  addStudyTime(id, new Date(), timeStudied)
 })
 
 app.listen(port, () => {

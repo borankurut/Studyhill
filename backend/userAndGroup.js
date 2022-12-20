@@ -200,7 +200,32 @@ class Group {
   }
   
   static discardMember(id){
+    User.findUserId(id, function cb(u){
+      db.query(`UPDATE users SET groupCode = '0' WHERE id = ${u.id}`, 
+      (error, results)=>{if(error) throw error;});
 
+      const sqlDelUserRow = `DELETE FROM snowhill.group_table_code_${u.groupCode} WHERE member_user_id = ${u.id};`;
+      db.query(sqlDelUserRow, (error, results)=>{if(error) throw error;})
+
+      Group.findGroup(u.groupCode, function cb(g) {
+        let newCount = g.memberCount - 1;
+
+        if(newCount === 0){
+          // delete group from groups
+          const sqlDelGroup = `DELETE FROM snowhill.groups WHERE groupCode = "${g.groupCode}";`; 
+          db.query(sqlDelGroup, function cb(error, results){if(error) throw error;});
+
+          // drop group table.
+          const sqlDropTable = `DROP TABLE snowhill.group_table_code_${g.groupCode};`;
+          db.query(sqlDropTable, function cb(error, results){if(error) throw error;});
+        }
+
+        else{
+          db.query(`UPDATE snowhill.groups SET memberCount = ${newCount} WHERE groupCode = "${g.groupCode}"`,
+          (error, results) => {if(error) throw error;});
+        }
+      });
+    })
   }
 
   static makeGroupCode(length = 4) {
@@ -274,10 +299,19 @@ function addStudyTime(id, date, studiedMinutes){
         total += studiedMinutes;
 
         db.query(`UPDATE users SET totalStudyTime = ${total} WHERE id = ${u.id}`, (error, result)=>{
-          console.log(u.id);
+          console.log('debug:' + u.id + '. debug end.'); // delete debug.
           if(error)
             throw error;
         });
+        if(u.groupCode != '0'){
+          db.query(`SELECT * FROM snowhill.group_table_code_${u.groupCode} WHERE member_user_id = ${u.id}`,
+          function callback(error, results){
+            let studyTimeInGroup = results[0].studyTime + studiedMinutes;
+            const sql = `UPDATE snowhill.group_table_code_${u.groupCode} `+
+            `SET studyTime = ${studyTimeInGroup} WHERE member_user_id = ${u.id}`;
+            db.query(sql, function cb(error, result){if(error) throw error;});
+          })
+        }
 
       });
 
@@ -286,6 +320,7 @@ function addStudyTime(id, date, studiedMinutes){
         if(error)
           throw error;
       });
+
     }
   });
 }
