@@ -69,7 +69,7 @@ app.post("/login", async (req, res) => {
 
      // todo: this part is hardcoded here and in check-already part too
      // this part is gonna be linked to the database later.
-    u.hasGroup = true;
+    u.hasGroup = (u.groupCode !== '0');
     u.groupName = 'g1';
     u.tasks = ["t1", "t2"];
     u.weeklyGoal = 10;
@@ -83,7 +83,15 @@ app.post("/login", async (req, res) => {
         d[day] = 0;
       }
       u.weeklyHours = d;
-      return res.json(u);
+      if(u.hasGroup){
+        Group.findGroup(u.groupCode, function cb(g){
+          u.groupName = g.groupName;
+          return res.json(u);
+        })
+      }
+      else{
+        return res.json(u);
+      }
     })
   })
 });
@@ -106,7 +114,7 @@ app.post("/check-already-login", (req, res) => {  // todo: deviceId part.
 
      //hardcodded parts are necessery for frontend to work, 
      //they are gonna be changed after database implementation.
-    u.hasGroup = false;                          ;
+    u.hasGroup = (u.groupCode !== '0');
     u.groupName = 'g1';
     u.tasks = ["t1", "t2"];
 
@@ -123,7 +131,16 @@ app.post("/check-already-login", (req, res) => {  // todo: deviceId part.
         d[day] = d[day] / 60;
       }
       u.weeklyHours = d;
-      return res.json(u);
+
+      if(u.hasGroup){
+        Group.findGroup(u.groupCode, function cb(g){
+          u.groupName = g.groupName;
+          return res.json(u);
+        })
+      }
+      else{
+        return res.json(u);
+      }
     })
   })
 
