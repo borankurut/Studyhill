@@ -86,7 +86,8 @@ app.post("/login", async (req, res) => {
         Group.findGroup(u.groupCode, function cb(g){
           u.groupName = g.groupName;
 
-          if(findLastMonday(new Date()) !== g.mondayDate){
+          if(findLastMonday(new Date()) != dateToStr(g.mondayDate)){
+            console.log(findLastMonday(new Date()), g.mondayDate); // debug.
             const sqlUpdMonday = 
             `UPDATE snowhill.groups SET mondayDate = "${findLastMonday(new Date())}" `+
             `WHERE groupCode = "${g.groupCode}"`
@@ -149,7 +150,7 @@ app.post("/check-already-login", (req, res) => {  // todo: deviceId part.
         Group.findGroup(u.groupCode, function cb(g){
           u.groupName = g.groupName;
 
-          if(findLastMonday(new Date()) !== g.mondayDate){
+          if(findLastMonday(new Date()) != dateToStr(g.mondayDate)){
             const sqlUpdMonday = 
             `UPDATE snowhill.groups SET mondayDate = "${findLastMonday(new Date())}" `+
             `WHERE groupCode = "${g.groupCode}"`
@@ -236,6 +237,13 @@ app.get("/weekly-data-of", function(req, res){
     return res.json(d);
   });
 })
+
+app.get("/leaderboard-of", function(req, res){
+  const {groupCode} = req.body;
+  const sqlLeaderboard = 
+  `SELECT username, studyTime FROM snowhill.group_table_code_${groupCode} ORDER BY studyTime DESC;`
+  db.query(sqlLeaderboard, function cb(error, results){if(error) throw error; else return res.json(results);})
+});
 
 app.get("/verify", function (req, res) {
   try {
