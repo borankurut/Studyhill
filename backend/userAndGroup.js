@@ -149,7 +149,8 @@ class Group {
         groupCode: groupCode,
         groupName: groupName,
         maxSize: maxSize,
-        memberCount: 0
+        memberCount: 0,
+        mondayDate: findLastMonday(new Date())
       },
       (error, results)=>{
         if(error){

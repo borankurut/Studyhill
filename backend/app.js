@@ -48,8 +48,6 @@ app.use(express.json());
 // cors library are required for communication between client
 // server, which is port 3000, and backend server, port 3001.
 const cors = require("cors");
-const { CLIENT_RENEG_WINDOW } = require("tls");
-const e = require("express");
 app.use(cors());
 
 app.post("/login", async (req, res) => {
@@ -83,9 +81,24 @@ app.post("/login", async (req, res) => {
         d[day] = 0;
       }
       u.weeklyHours = d;
+      
       if(u.hasGroup){
         Group.findGroup(u.groupCode, function cb(g){
           u.groupName = g.groupName;
+
+          if(findLastMonday(new Date()) !== g.mondayDate){
+            const sqlUpdMonday = 
+            `UPDATE snowhill.groups SET mondayDate = "${findLastMonday(new Date())}" `+
+            `WHERE groupCode = "${g.groupCode}"`
+
+            db.query(sqlUpdMonday, function cb(error, results){if(error) throw error;});
+
+            const sqlResetTimes = 
+            `UPDATE snowhill.group_table_code_${g.groupCode} SET studyTime = 0 `+
+            `WHERE id_group_table_code > 0;`;
+            db.query(sqlResetTimes, function cb(error, results){if(error) throw error;});
+          }
+          
           return res.json(u);
         })
       }
@@ -135,6 +148,20 @@ app.post("/check-already-login", (req, res) => {  // todo: deviceId part.
       if(u.hasGroup){
         Group.findGroup(u.groupCode, function cb(g){
           u.groupName = g.groupName;
+
+          if(findLastMonday(new Date()) !== g.mondayDate){
+            const sqlUpdMonday = 
+            `UPDATE snowhill.groups SET mondayDate = "${findLastMonday(new Date())}" `+
+            `WHERE groupCode = "${g.groupCode}"`
+
+            db.query(sqlUpdMonday, function cb(error, results){if(error) throw error;});
+
+            const sqlResetTimes = 
+            `UPDATE snowhill.group_table_code_${g.groupCode} SET studyTime = 0 `+
+            `WHERE id_group_table_code > 0;`;
+            db.query(sqlResetTimes, function cb(error, results){if(error) throw error;});
+          }
+          
           return res.json(u);
         })
       }
