@@ -7,6 +7,7 @@ function GroupProfilePage(props) {
   const [userName, setUserName] = useState("");
   const [day, setDay] = useState("");
   const [date, setDate] = useState("");
+  const [userID, setUserID] = useState(0);
   const [tasks, setTasks] = useState([]);
   const [weeklyGoal, setWeeklyGoal] = useState("");
   const [weeklyHours, setweeklyHours] = useState({
@@ -88,6 +89,7 @@ function GroupProfilePage(props) {
               setWeeklyGoal(res.data.weeklyGoal);
               setweeklyHours({ ...res.data.weeklyHours });
               setUserName(res.data.username);
+              setUserID(res.data.id);
             }
           }
         })
@@ -139,6 +141,18 @@ function GroupProfilePage(props) {
     }
   };
 
+  const handleLeaveGroup = (e) => {
+    e.preventDefault();
+
+    axios.put("/leavegroup", { id: userID }).then((res) => {
+      if (res.data.msg === "Leaved") {
+        navigate("/profile-user");
+      } else {
+        alert("Something went wrong while leaving group!!! Please try again");
+      }
+    });
+  };
+
   return (
     <div className="container mx-auto">
       <header className="relative bg-navbar-dark p-6 flex justify-between items-center">
@@ -148,11 +162,13 @@ function GroupProfilePage(props) {
 
         {/* large screen navbar */}
         <nav className="hidden md:flex items-center justify-end gap-6 p-6">
-          <button className="lg:text-lg xl:text-xl font-semibold hover:text-slate-300 hover:border-slate-300 transition duration-150 ease-in">
+          <button
+            onClick={handleLeaveGroup}
+            className="lg:text-lg xl:text-xl font-semibold hover:text-slate-300 hover:border-slate-300 transition duration-150 ease-in"
+          >
             Leave The Group
           </button>
           <button
-            to="join-group"
             className="lg:text-lg xl:text-xl font-semibold hover:text-slate-300 hover:border-slate-300 transition duration-150 ease-in"
             onClick={handleLogOut}
           >
@@ -166,7 +182,7 @@ function GroupProfilePage(props) {
           className="invisible opacity-0 absolute left-0 top-full bg-inherit w-full flex flex-col md:hidden jusitfy-start items-start gap-4 p-6 transition duration-150 ease-in"
         >
           <button
-            to="join-group"
+            onClick={handleLeaveGroup}
             className="text-base font-semibold hover:text-slate-300 hover:border-slate-300 transition duration-150 ease-in"
           >
             Leave The Group

@@ -37,7 +37,7 @@ function JoinAGroup() {
               // User already has a group
               // Do not let enter this page
               // Navigate to profile-group page
-              navigate("profile-group");
+              navigate("/profile-group");
             } else {
               setUserName(res.data.username);
               setUserID(res.data.id);
