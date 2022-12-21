@@ -59,7 +59,7 @@ function CreateGroup() {
   }, []);
 
   useEffect(() => {
-    if (groupName !== "" && /^[a-z0-9]*$/.test(groupName)) {
+    if (groupName !== "" && /^[A-Za-z0-9]*$/.test(groupName)) {
       setIsGroupNameValid(true);
     } else {
       setIsGroupNameValid(false);
