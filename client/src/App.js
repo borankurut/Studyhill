@@ -7,6 +7,7 @@ import GroupProfilePage from "./components/GroupProfilePage.js";
 import UserProfilePage from "./components/UserProfilePage.js";
 import Login from "./components/Login";
 import SignUp from "./components/SignUp";
+import JoinAGroup from "./components/JoinAGroup.js";
 
 function App() {
   document.body.classList.add("bg-body-dark", "text-white");
@@ -20,6 +21,7 @@ function App() {
       <Route path="/profile-group" element={<GroupProfilePage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/sign-up" element={<SignUp />} />
+      <Route path="/join-a-group" element={<JoinAGroup />} />
       <Route path="*" element={<ErrorPage />} />
     </Routes>
   );

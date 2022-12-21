@@ -145,19 +145,18 @@ function UserProfilePage() {
         {/* large screen navbar */}
         <nav className="hidden md:flex items-center justify-end gap-6 p-6">
           <NavLink
-            to="join-group"
+            to="/join-a-group"
             className="lg:text-lg xl:text-xl font-semibold hover:text-slate-300 hover:border-slate-300 transition duration-150 ease-in"
           >
             Join A Group
           </NavLink>
           <NavLink
-            to="create-group"
+            to="/create-group"
             className="lg:text-lg xl:text-xl font-semibold hover:text-slate-300 hover:border-slate-300 transition duration-150 ease-in"
           >
             Create A Group
           </NavLink>
           <button
-            to="join-group"
             className="lg:text-lg xl:text-xl font-semibold hover:text-slate-300 hover:border-slate-300 transition duration-150 ease-in"
             onClick={handleLogOut}
           >
@@ -171,19 +170,18 @@ function UserProfilePage() {
           className="invisible opacity-0 absolute left-0 top-full bg-inherit w-full flex flex-col md:hidden jusitfy-start items-start gap-4 p-6 transition duration-150 ease-in"
         >
           <NavLink
-            to="join-group"
+            to="/join-a-group"
             className="text-base font-semibold hover:text-slate-300 hover:border-slate-300 transition duration-150 ease-in"
           >
             Join A Group
           </NavLink>
           <NavLink
-            to="create-group"
+            to="/create-group"
             className="text-base font-semibold hover:text-slate-300 hover:border-slate-300 transition duration-150 ease-in"
           >
             Create A Group
           </NavLink>
           <button
-            to="join-group"
             className="text-base font-semibold hover:text-slate-300 hover:border-slate-300 transition duration-150 ease-in"
             onClick={handleLogOut}
           >
