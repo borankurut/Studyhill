@@ -110,6 +110,7 @@ function StudyPage() {
     if (!timeToSubmit) return;
     // Else send
     let timeToSubmitInHours = timeToSubmit / 60;
+    console.log(timeToSubmitInHours);
     axios
       .post("/addtime", { id: id, timeStudied: timeToSubmitInHours })
       .catch((err) => console.log(err));
@@ -221,6 +222,7 @@ function StudyPage() {
     } else {
       if (currentStudyTimerMin != studyCountdown) {
         let timeStudiedInHours = (studyCountdown - currentStudyTimerMin) / 60;
+        console.log("timeStudiedInHours", timeStudiedInHours);
         axios
           .post("/addtime", { id: id, timeStudied: timeStudiedInHours })
           .catch((err) => console.log(err));
@@ -247,6 +249,7 @@ function StudyPage() {
 
   useEffect(() => {
     setStudyTime(Date.now() + studyCountdown * 60000);
+    setCurrentStudyTimerMin(studyCountdown);
   }, [studyCountdown, breakTimerStarted, resetTimer]);
 
   useEffect(() => {
