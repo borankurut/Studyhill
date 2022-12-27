@@ -25,6 +25,7 @@ const db = mysql.createConnection({
   user: "root",
   password: "1234",
   database: "snowhill", //MySQL açık değilse burada hata verebilir. Bu satır comment edilirse hata gider.
+  multipleStatements: true
 });
 
 db.connect((error) => {
@@ -70,8 +71,7 @@ app.post("/login", async (req, res) => {
     u.hasGroup = (u.groupCode !== '0');
     u.groupName = 'g1';
     u.tasks = ["t1", "t2"];
-    u.weeklyGoal = 10;
-    u.badges = ["b1", "b2"];
+    u.badges = User.badgesOf(u);
     u.uniqeDeviceID = encodeTokenPassword(u.password);
     
     User.weeklyDataOfDate(u.id, findLastMonday(new Date()), function cb(d){
@@ -87,7 +87,16 @@ app.post("/login", async (req, res) => {
           u.groupName = g.groupName;
 
           if(findLastMonday(new Date()) != dateToStr(g.mondayDate)){
-            console.log(findLastMonday(new Date()), g.mondayDate); // debug.
+            //determine groupWinner
+            const sqlLeaderboard = 
+            `SELECT member_user_id FROM snowhill.group_table_code_${g.groupCode} ORDER BY studyTime DESC;`
+            db.query(sqlLeaderboard, function cb(error, results){
+              if(error) throw error;
+              
+              db.query(`UPDATE snowhill.users SET badgeGroupWinner = 1 WHERE id = ${results[0].member_user_id};`,
+              (error, results)=>{if(error) throw error;})
+            })
+
             const sqlUpdMonday = 
             `UPDATE snowhill.groups SET mondayDate = "${findLastMonday(new Date())}" `+
             `WHERE groupCode = "${g.groupCode}"`
@@ -132,9 +141,7 @@ app.post("/check-already-login", (req, res) => {  // todo: deviceId part.
     u.groupName = 'g1';
     u.tasks = ["t1", "t2"];
 
-    u.weeklyGoal = 10;
-
-    u.badges = ["b1", "b2"];
+    u.badges = User.badgesOf(u);
     
     User.weeklyDataOfDate(u.id, findLastMonday(new Date()), function cb(d){
       console.log(u.id);
@@ -144,12 +151,23 @@ app.post("/check-already-login", (req, res) => {  // todo: deviceId part.
         d[day] = d[day] / 60;
       }
       u.weeklyHours = d;
-
+      
       if(u.hasGroup){
         Group.findGroup(u.groupCode, function cb(g){
           u.groupName = g.groupName;
 
           if(findLastMonday(new Date()) != dateToStr(g.mondayDate)){
+            //determine groupWinner
+            const sqlLeaderboard = 
+            `SELECT member_user_id FROM snowhill.group_table_code_${g.groupCode} ORDER BY studyTime DESC;`
+            db.query(sqlLeaderboard, function cb(error, results){
+              if(error) throw error;
+              
+              db.query(`UPDATE snowhill.users SET badgeGroupWinner = 1 WHERE id = ${results[0].member_user_id};`,
+              (error, results)=>{if(error) throw error;})
+            })
+
+
             const sqlUpdMonday = 
             `UPDATE snowhill.groups SET mondayDate = "${findLastMonday(new Date())}" `+
             `WHERE groupCode = "${g.groupCode}"`
@@ -320,21 +338,7 @@ app.put("/creategroup", (req, res) => {
 
 });
 
-// Function get post method to logout user
-// by simple removing unique device id from user
-// and returns a simple information as response.
 app.post("/logout", (req, res) => {
-  // Printing request body for debugging
-  console.log(req.body);
-
-  // Remove unique device id from user
-  // TODO
-
-  // ----------------------- Important note -------------------------
-  // We are sending in user data one unique device id to store all
-  // devices logged in we must hold it in database as an array.
-
-  // Send a response
   res.json({ deletedSuccesfully: true });
 });
 
@@ -347,6 +351,15 @@ app.post("/addtime", (req, res) =>{
   const id = req.body.id;
 
   addStudyTime(id, new Date(), timeStudied)
+})
+
+app.post("/change-weeklygoal", (req, res) => {
+  console.log(req.body);
+  let toChangeId = req.body.id;
+  let newWeeklyGoal = req.body.weeklyGoal;
+  db.query(`UPDATE snowhill.users SET weeklyGoal = ${newWeeklyGoal} WHERE id = ${toChangeId}`, 
+  (error, results)=>{if(error) throw error;});
+  res.send({msg: 'updated'});
 })
 
 app.listen(port, () => {

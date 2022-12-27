@@ -8,6 +8,7 @@ const db = mysql.createConnection({
   user: "root",
   password: "1234",
   database: "snowhill", //MySQL açık değilse burada hata verebilir. Bu satır comment edilirse hata gider.
+  multipleStatements: true
 });
 
 db.connect((error) => {
@@ -125,6 +126,18 @@ class User {
         callback(results[0]);
       }
     );
+  }
+
+  static badgesOf(user){
+    let badges = ["First Login"];
+    if(user.badgeFirstStudy)
+      badges.push("First Study");
+    if(user.badgeHundredHours)
+      badges.push("100 Hours");
+    if(user.badgeGroupWinner)
+      badges.push("Group Winner");
+    
+    return badges;
   }
 }
 
@@ -298,8 +311,11 @@ function addStudyTime(id, date, studiedMinutes){
       User.findUserId(id, function callback(u){
         let total = u.totalStudyTime;
         total += studiedMinutes;
+        const sql = `UPDATE snowhill.users SET totalStudyTime = ${total} WHERE id = ${u.id}; `+
+        `UPDATE snowhill.users SET badgeFirstStudy = ${Number(total > 0)} WHERE id = ${u.id}; `+
+        `UPDATE snowhill.users SET badgeHundredHours = ${Number(total >= 6000)} WHERE id = ${u.id}; `;
 
-        db.query(`UPDATE users SET totalStudyTime = ${total} WHERE id = ${u.id}`, (error, result)=>{
+        db.query(sql, (error, result)=>{
           console.log('debug:' + u.id + '. debug end.'); // delete debug.
           if(error)
             throw error;
