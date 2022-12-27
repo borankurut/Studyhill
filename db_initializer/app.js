@@ -24,7 +24,11 @@ db.connect(function(err) {
         `password VARCHAR(255),` +
         `groupCode VARCHAR(255),` +
         `verified INT,` +
-        `totalStudyTime INT NOT NULL default 0);`;
+        `totalStudyTime INT NOT NULL default 0,` +
+        `weeklyGoal INT NOT NULL default 2,` +
+        `badgeFirstStudy INT NOT NULL default 0,` +
+        `badgeHoundredHours INT NOT NULL default 0,` +
+        `badgeGroupWinner INT NOT NULL default 0);`;
 
         db.query(userTableSQL, function (error, result){
             if(error)
