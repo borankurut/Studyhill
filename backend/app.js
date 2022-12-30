@@ -21,10 +21,10 @@ const port = 3001;
 const mysql = require("mysql");
 
 const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "1234",
-  database: "snowhill", //MySQL açık değilse burada hata verebilir. Bu satır comment edilirse hata gider.
+  host: "sql.freedb.tech",
+  user: "freedb_root3131",
+  database: "freedb_snowhilltest",
+  password: "EJj#Xztm6mu7Fk$", 
   multipleStatements: true
 });
 
@@ -89,22 +89,22 @@ app.post("/login", async (req, res) => {
           if(findLastMonday(new Date()) != dateToStr(g.mondayDate)){
             //determine groupWinner
             const sqlLeaderboard = 
-            `SELECT member_user_id FROM snowhill.group_table_code_${g.groupCode} ORDER BY studyTime DESC;`
+            `SELECT member_user_id FROM freedb_snowhilltest.group_table_code_${g.groupCode} ORDER BY studyTime DESC;`
             db.query(sqlLeaderboard, function cb(error, results){
               if(error) throw error;
               
-              db.query(`UPDATE snowhill.users SET badgeGroupWinner = 1 WHERE id = ${results[0].member_user_id};`,
+              db.query(`UPDATE freedb_snowhilltest.users SET badgeGroupWinner = 1 WHERE id = ${results[0].member_user_id};`,
               (error, results)=>{if(error) throw error;})
             })
 
             const sqlUpdMonday = 
-            `UPDATE snowhill.groups SET mondayDate = "${findLastMonday(new Date())}" `+
+            `UPDATE freedb_snowhilltest.groups SET mondayDate = "${findLastMonday(new Date())}" `+
             `WHERE groupCode = "${g.groupCode}"`
 
             db.query(sqlUpdMonday, function cb(error, results){if(error) throw error;});
 
             const sqlResetTimes = 
-            `UPDATE snowhill.group_table_code_${g.groupCode} SET studyTime = 0 `+
+            `UPDATE freedb_snowhilltest.group_table_code_${g.groupCode} SET studyTime = 0 `+
             `WHERE id_group_table_code > 0;`;
             db.query(sqlResetTimes, function cb(error, results){if(error) throw error;});
           }
@@ -159,23 +159,23 @@ app.post("/check-already-login", (req, res) => {  // todo: deviceId part.
           if(findLastMonday(new Date()) != dateToStr(g.mondayDate)){
             //determine groupWinner
             const sqlLeaderboard = 
-            `SELECT member_user_id FROM snowhill.group_table_code_${g.groupCode} ORDER BY studyTime DESC;`
+            `SELECT member_user_id FROM freedb_snowhilltest.group_table_code_${g.groupCode} ORDER BY studyTime DESC;`
             db.query(sqlLeaderboard, function cb(error, results){
               if(error) throw error;
               
-              db.query(`UPDATE snowhill.users SET badgeGroupWinner = 1 WHERE id = ${results[0].member_user_id};`,
+              db.query(`UPDATE freedb_snowhilltest.users SET badgeGroupWinner = 1 WHERE id = ${results[0].member_user_id};`,
               (error, results)=>{if(error) throw error;})
             })
 
 
             const sqlUpdMonday = 
-            `UPDATE snowhill.groups SET mondayDate = "${findLastMonday(new Date())}" `+
+            `UPDATE freedb_snowhilltest.groups SET mondayDate = "${findLastMonday(new Date())}" `+
             `WHERE groupCode = "${g.groupCode}"`
 
             db.query(sqlUpdMonday, function cb(error, results){if(error) throw error;});
 
             const sqlResetTimes = 
-            `UPDATE snowhill.group_table_code_${g.groupCode} SET studyTime = 0 `+
+            `UPDATE freedb_snowhilltest.group_table_code_${g.groupCode} SET studyTime = 0 `+
             `WHERE id_group_table_code > 0;`;
             db.query(sqlResetTimes, function cb(error, results){if(error) throw error;});
           }
@@ -258,7 +258,7 @@ app.get("/weekly-data-of", function(req, res){
 app.get("/leaderboard-of", function(req, res){
   const {groupCode} = req.body;
   const sqlLeaderboard = 
-  `SELECT username, studyTime FROM snowhill.group_table_code_${groupCode} ORDER BY studyTime DESC;`
+  `SELECT username, studyTime FROM freedb_snowhilltest.group_table_code_${groupCode} ORDER BY studyTime DESC;`
   db.query(sqlLeaderboard, function cb(error, results){if(error) throw error; else return res.json(results);})
 });
 
@@ -357,7 +357,7 @@ app.post("/change-weeklygoal", (req, res) => {
   console.log(req.body);
   let toChangeId = req.body.id;
   let newWeeklyGoal = req.body.weeklyGoal;
-  db.query(`UPDATE snowhill.users SET weeklyGoal = ${newWeeklyGoal} WHERE id = ${toChangeId}`, 
+  db.query(`UPDATE freedb_snowhilltest.users SET weeklyGoal = ${newWeeklyGoal} WHERE id = ${toChangeId}`, 
   (error, results)=>{if(error) throw error;});
   res.send({msg: 'updated'});
 })
