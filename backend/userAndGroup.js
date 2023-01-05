@@ -4,10 +4,10 @@ const users = [];
 const mysql = require("mysql");
 
 const db = mysql.createConnection({
-  host: "sql.freedb.tech",
-  user: "freedb_root3131",
-  database: "freedb_snowhilltest",
-  password: "EJj#Xztm6mu7Fk$", //MySQL açık değilse burada hata verebilir. Bu satır comment edilirse hata gider.
+  host: "localhost",
+  user: "root",
+  password: "1234",
+  database: "snowhill", //MySQL açık değilse burada hata verebilir. Bu satır comment edilirse hata gider.
   multipleStatements: true
 });
 
@@ -95,7 +95,7 @@ class User {
 
   static createWeeklyTable(id){
     const userId = id;
-    const sql = `CREATE TABLE freedb_snowhilltest.weeklystudy_id_${userId}(`+
+    const sql = `CREATE TABLE snowhill.weeklystudy_id_${userId}(`+
     `id_weeklystudy INT AUTO_INCREMENT,` +
     `monday INT NULL,`+
     `tuesday INT NULL,`+
@@ -157,7 +157,7 @@ class Group {
         return;
       }
 
-      db.query("INSERT INTO freedb_snowhilltest.groups SET ?",
+      db.query("INSERT INTO snowhill.groups SET ?",
       {
         groupCode: groupCode,
         groupName: groupName,
@@ -171,7 +171,7 @@ class Group {
         }
       })
     });
-    const sql = `CREATE TABLE freedb_snowhilltest.group_table_code_${groupCode}(`+
+    const sql = `CREATE TABLE snowhill.group_table_code_${groupCode}(`+
     `id_group_table_code INT NOT NULL PRIMARY KEY AUTO_INCREMENT,` +
     'member_user_id INT,' +
     'studyTime INT,' +
@@ -187,7 +187,7 @@ class Group {
   static addMember(groupCode, id){
 
     User.findUserId(id, function cb(u){
-      db.query(`INSERT INTO freedb_snowhilltest.group_table_code_${groupCode} SET ?`,
+      db.query(`INSERT INTO snowhill.group_table_code_${groupCode} SET ?`,
       {
         member_user_id: u.id,
         studyTime: 0,
@@ -198,11 +198,11 @@ class Group {
             throw error;
           Group.findGroup(groupCode, function cb(g) {
             let newCount = g.memberCount + 1;
-            db.query(`UPDATE freedb_snowhilltest.groups SET memberCount = ${newCount} WHERE groupCode = "${groupCode}"`,
+            db.query(`UPDATE snowhill.groups SET memberCount = ${newCount} WHERE groupCode = "${groupCode}"`,
             (error, result) => {
               if(error)
                 throw error;
-              db.query(`UPDATE freedb_snowhilltest.users SET groupCode = "${groupCode}" WHERE id = ${u.id}`, 
+              db.query(`UPDATE snowhill.users SET groupCode = "${groupCode}" WHERE id = ${u.id}`, 
               (error, result)=>{
                 if(error) 
                   throw error;
@@ -218,7 +218,7 @@ class Group {
       db.query(`UPDATE users SET groupCode = '0' WHERE id = ${u.id}`, 
       (error, results)=>{if(error) throw error;});
 
-      const sqlDelUserRow = `DELETE FROM freedb_snowhilltest.group_table_code_${u.groupCode} WHERE member_user_id = ${u.id};`;
+      const sqlDelUserRow = `DELETE FROM snowhill.group_table_code_${u.groupCode} WHERE member_user_id = ${u.id};`;
       db.query(sqlDelUserRow, (error, results)=>{if(error) throw error;})
 
       Group.findGroup(u.groupCode, function cb(g) {
@@ -226,16 +226,16 @@ class Group {
 
         if(newCount === 0){
           // delete group from groups
-          const sqlDelGroup = `DELETE FROM freedb_snowhilltest.groups WHERE groupCode = "${g.groupCode}";`; 
+          const sqlDelGroup = `DELETE FROM snowhill.groups WHERE groupCode = "${g.groupCode}";`; 
           db.query(sqlDelGroup, function cb(error, results){if(error) throw error;});
 
           // drop group table.
-          const sqlDropTable = `DROP TABLE freedb_snowhilltest.group_table_code_${g.groupCode};`;
+          const sqlDropTable = `DROP TABLE snowhill.group_table_code_${g.groupCode};`;
           db.query(sqlDropTable, function cb(error, results){if(error) throw error;});
         }
 
         else{
-          db.query(`UPDATE freedb_snowhilltest.groups SET memberCount = ${newCount} WHERE groupCode = "${g.groupCode}"`,
+          db.query(`UPDATE snowhill.groups SET memberCount = ${newCount} WHERE groupCode = "${g.groupCode}"`,
           (error, results) => {if(error) throw error;});
         }
       });
@@ -253,7 +253,7 @@ class Group {
 
   static findGroup(groupCode, cb){
     console.log(groupCode);
-    db.query("SELECT * FROM freedb_snowhilltest.groups WHERE groupCode = ?", [groupCode], 
+    db.query("SELECT * FROM snowhill.groups WHERE groupCode = ?", [groupCode], 
     async (error, result) => {
       if(error)
         throw error;
@@ -311,9 +311,9 @@ function addStudyTime(id, date, studiedMinutes){
       User.findUserId(id, function callback(u){
         let total = u.totalStudyTime;
         total += studiedMinutes;
-        const sql = `UPDATE freedb_snowhilltest.users SET totalStudyTime = ${total} WHERE id = ${u.id}; `+
-        `UPDATE freedb_snowhilltest.users SET badgeFirstStudy = ${Number(total > 0)} WHERE id = ${u.id}; `+
-        `UPDATE freedb_snowhilltest.users SET badgeHundredHours = ${Number(total >= 6000)} WHERE id = ${u.id}; `;
+        const sql = `UPDATE snowhill.users SET totalStudyTime = ${total} WHERE id = ${u.id}; `+
+        `UPDATE snowhill.users SET badgeFirstStudy = ${Number(total > 0)} WHERE id = ${u.id}; `+
+        `UPDATE snowhill.users SET badgeHundredHours = ${Number(total >= 6000)} WHERE id = ${u.id}; `;
 
         db.query(sql, (error, result)=>{
           console.log('debug:' + u.id + '. debug end.'); // delete debug.
@@ -321,10 +321,10 @@ function addStudyTime(id, date, studiedMinutes){
             throw error;
         });
         if(u.groupCode != '0'){
-          db.query(`SELECT * FROM freedb_snowhilltest.group_table_code_${u.groupCode} WHERE member_user_id = ${u.id}`,
+          db.query(`SELECT * FROM snowhill.group_table_code_${u.groupCode} WHERE member_user_id = ${u.id}`,
           function callback(error, results){
             let studyTimeInGroup = results[0].studyTime + studiedMinutes;
-            const sql = `UPDATE freedb_snowhilltest.group_table_code_${u.groupCode} `+
+            const sql = `UPDATE snowhill.group_table_code_${u.groupCode} `+
             `SET studyTime = ${studyTimeInGroup} WHERE member_user_id = ${u.id}`;
             db.query(sql, function cb(error, result){if(error) throw error;});
           })
