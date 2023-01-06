@@ -74,13 +74,8 @@ app.post("/login", async (req, res) => {
     u.badges = User.badgesOf(u);
     u.uniqeDeviceID = encodeTokenPassword(u.password);
     
-    User.weeklyDataOfDate(u.id, findLastMonday(new Date()), function cb(d){
-      console.log(u.id);
-      for(let day in d){
-        if(d[day] === null)
-        d[day] = 0;
-      }
-      u.weeklyHours = d;
+    User.allWeeklyHoursOfId(u.id, function cb(wHours){
+      u.weeklyHours = wHours;
       
       if(u.hasGroup){
         Group.findGroup(u.groupCode, function cb(g){
@@ -143,14 +138,8 @@ app.post("/check-already-login", (req, res) => {  // todo: deviceId part.
 
     u.badges = User.badgesOf(u);
     
-    User.weeklyDataOfDate(u.id, findLastMonday(new Date()), function cb(d){
-      console.log(u.id);
-      for(let day in d){
-        if(d[day] === null)
-         d[day] = 0;
-        d[day] = d[day] / 60;
-      }
-      u.weeklyHours = d;
+    User.allWeeklyHoursOfId(u.id, function cb(wHours){
+      u.weeklyHours = wHours;
       
       if(u.hasGroup){
         Group.findGroup(u.groupCode, function cb(g){
@@ -249,8 +238,8 @@ app.post("/signup", async (req, res) => {
 });
 
 app.get("/weekly-data-of", function(req, res){
-  const {id, date} = req.body;
-  User.weeklyDataOfDate(id, dateToStr(date), function callback(d){
+  const {id} = req.body;
+  User.allWeeklyHoursOfId(id, function callback(d){
     return res.json(d);
   });
 })

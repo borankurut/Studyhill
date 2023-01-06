@@ -128,6 +128,32 @@ class User {
     );
   }
 
+  static allWeeklyHoursOfId(id, callback){
+    db.query(
+      `SELECT * FROM weeklystudy_id_${id}`,
+      async (error, results) => {
+        if(error)
+          throw error;
+
+        for(let i = 0; i < results.length; ++i){
+          if(results[i] === null){  
+            results[0] = {monday: 0,tuesday: 0,wednesday: 0,thursday: 0,
+            friday: 0,saturday: 0,sunday: 0, date: result[i].date};
+          }
+          Object.keys(results[i]).forEach(
+            (key) => {
+              (results[i][key] === null) ? results[i][key] = 0 : results[i][key]
+              if(key != 'date' && key != 'id_weeklystudy'){
+                results[i][key] /= 60;
+              }
+            }
+          );
+        }
+        callback(results);
+      }
+    );
+  }
+
   static badgesOf(user){
     let badges = ["First Login"];
     if(user.badgeFirstStudy)
@@ -316,7 +342,6 @@ function addStudyTime(id, date, studiedMinutes){
         `UPDATE snowhill.users SET badgeHundredHours = ${Number(total >= 6000)} WHERE id = ${u.id}; `;
 
         db.query(sql, (error, result)=>{
-          console.log('debug:' + u.id + '. debug end.'); // delete debug.
           if(error)
             throw error;
         });
