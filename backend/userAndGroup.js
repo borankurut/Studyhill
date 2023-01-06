@@ -136,6 +136,7 @@ class User {
           throw error;
 
         for(let i = 0; i < results.length; ++i){
+          results[i].date = dateToStr(results[i].date);
           if(results[i] === null){  
             results[0] = {monday: 0,tuesday: 0,wednesday: 0,thursday: 0,
             friday: 0,saturday: 0,sunday: 0, date: result[i].date};
