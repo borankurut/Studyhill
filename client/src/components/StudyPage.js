@@ -145,6 +145,14 @@ function StudyPage() {
     if (timerStarted) {
       alert("Study timer is still running");
     } else {
+      if (currentStudyTimerMin != studyCountdown) {
+        let timeStudiedInHours = (studyCountdown - currentStudyTimerMin) / 60;
+        console.log("timeStudiedInHours", timeStudiedInHours);
+        axios
+          .post("/addtime", { id: id, timeStudied: timeStudiedInHours })
+          .catch((err) => console.log(err));
+      }
+      
       if (breakTimerStarted) {
         setBreakButtonText("break");
         setBreakTimerStarted(false);
