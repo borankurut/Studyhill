@@ -47,7 +47,7 @@ function UserProfilePage() {
 
     setWeeklyGoal(5);
     setweeklyHours({
-      date:"foo",
+      date: "foo",
       monday: 5,
       tuesday: 3,
       wednesday: 6,
@@ -92,7 +92,9 @@ function UserProfilePage() {
               // Set user informations here.
               setBadges([...res.data.badges]);
               setWeeklyGoal(res.data.weeklyGoal);
-              setweeklyHours({ ...res.data.weeklyHours[res.data.weeklyHours.length - 1] });
+              setweeklyHours({
+                ...res.data.weeklyHours[res.data.weeklyHours.length - 1],
+              });
               setUserName(res.data.username);
             }
           }
@@ -145,8 +147,6 @@ function UserProfilePage() {
     }
   };
 
-
-
   // Add new task
   const addNewTask = (e) => {
     e.preventDefault();
@@ -155,14 +155,12 @@ function UserProfilePage() {
       setTasks((prev) => [...prev, newTask]);
       setNewTask("");
     }
-  }
-
+  };
 
   useEffect(() => {
     localStorage.setItem("tasks", JSON.stringify(tasks));
     console.log(tasks);
-  },[tasks]);
-
+  }, [tasks]);
 
   return (
     <div className="container mx-auto">
@@ -285,13 +283,18 @@ function UserProfilePage() {
                   {/* Task */}
                   {task}
                   {/* Delete Button to delete current task */}
-                  <button onClick={(e) => {
-                    e.preventDefault();
-                    setTasks((prev) => {
-                      let itemDeleted = prev[i];
-                      let tasksLeft = prev.filter(item => item !== itemDeleted);
-                      return [...tasksLeft];
-                    })}}>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setTasks((prev) => {
+                        let itemDeleted = prev[i];
+                        let tasksLeft = prev.filter(
+                          (item) => item !== itemDeleted
+                        );
+                        return [...tasksLeft];
+                      });
+                    }}
+                  >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -321,11 +324,10 @@ function UserProfilePage() {
                 onChange={(e) => setNewTask(e.target.value)}
                 placeholder="Please enter task here"
               />
-              <button 
+              <button
                 className="flex gap-2 font-sans font-semibold text-base text-white hover:text-slate-300"
-                onClick={addNewTask}  
+                onClick={addNewTask}
               >
-                
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
