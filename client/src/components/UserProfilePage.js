@@ -10,6 +10,7 @@ function UserProfilePage() {
   const [tasks, setTasks] = useState([]);
   const [weeklyGoal, setWeeklyGoal] = useState("");
   const [weeklyHours, setweeklyHours] = useState({
+    date: "foo",
     monday: 1,
     tuesday: 1,
     wednesday: 1,
@@ -40,12 +41,13 @@ function UserProfilePage() {
     // TODO
     // Check whether tasks are stored in localstorage or not
     // If stored get tasks
-    if (localStorage.getItem("tasks")) {
+    if (localStorage.getItem("tasks") !== null) {
       setTasks(JSON.parse(localStorage.getItem("tasks")));
     }
 
     setWeeklyGoal(5);
     setweeklyHours({
+      date:"foo",
       monday: 5,
       tuesday: 3,
       wednesday: 6,
@@ -90,7 +92,7 @@ function UserProfilePage() {
               // Set user informations here.
               setBadges([...res.data.badges]);
               setWeeklyGoal(res.data.weeklyGoal);
-              setweeklyHours({ ...res.data.weeklyHours });
+              setweeklyHours({ ...res.data.weeklyHours[res.data.weeklyHours.length - 1] });
               setUserName(res.data.username);
             }
           }
@@ -150,11 +152,16 @@ function UserProfilePage() {
     e.preventDefault();
 
     if (newTask !== "") {
-      setTasks([...tasks, newTask]);
-      localStorage.setItem("tasks", tasks);
+      setTasks((prev) => [...prev, newTask]);
+      setNewTask("");
     }
   }
 
+
+  useEffect(() => {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+    console.log(tasks);
+  },[tasks]);
 
 
   return (
@@ -278,7 +285,13 @@ function UserProfilePage() {
                   {/* Task */}
                   {task}
                   {/* Delete Button to delete current task */}
-                  <button>
+                  <button onClick={(e) => {
+                    e.preventDefault();
+                    setTasks((prev) => {
+                      let itemDeleted = prev[i];
+                      let tasksLeft = prev.filter(item => item !== itemDeleted);
+                      return [...tasksLeft];
+                    })}}>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -301,7 +314,8 @@ function UserProfilePage() {
             {/* Add task button */}
             <form>
               <input
-                type="text" 
+                type="text"
+                value={newTask}
                 className="text-black w-full my-4 p-1 outline-navbar-dark text-base rounded-sm"
                 required
                 onChange={(e) => setNewTask(e.target.value)}
