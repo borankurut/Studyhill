@@ -10,6 +10,7 @@ function GroupProfilePage(props) {
   const [userID, setUserID] = useState(0);
   const [tasks, setTasks] = useState([]);
   const [weeklyGoal, setWeeklyGoal] = useState("");
+  const [leaderboard, setLeaderBoard] = useState([]);
 
   const [newWeeklyGoal, setNewWeeklyGoal] = useState(0);
 
@@ -108,6 +109,8 @@ function GroupProfilePage(props) {
 
               setUserName(res.data.username);
               setUserID(res.data.id);
+
+              setLeaderBoard([...res.data.leaderboard]);
             }
           }
         })
@@ -573,6 +576,88 @@ function GroupProfilePage(props) {
                 })}
               </div>
             </div>
+
+
+
+
+
+
+
+            {/* Leaderboard Div */}
+            <div className="w-full mt-32 md:mt-52 flex flex-col items-start justify-start gap-6">
+              <div className="p-6 md:p-0 flex flex-row items-center justfiy-start gap-2">
+                <h1 className="font-extrabold font-sans text-sm md:text-base lg:text-lg xl:text-xl">
+                  Leader Board
+                </h1>
+                <span className="p-1">
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  fill="none" viewBox="0 0 24 24" 
+                  strokeWidth={1.5} stroke="currentColor" 
+                  className="w-6 h-6"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
+                </svg>
+
+                </span>
+              </div>
+              {/* List of members in sorted order for leader board */}
+              <table>
+                <thead>
+                  <tr>
+                    <th className="px-6 py-4 border border-collapse text-sm md:text-base lg:text-lg xl:text-xl font-normal font-sans">Name</th>
+                    <th className="px-6 py-4 border border-collapse text-sm md:text-base lg:text-lg xl:text-xl font-normal font-sans">Study Time</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {leaderboard.map((member, i) => {
+                    return (
+                      <tr key={i}>
+                        <th className="px-6 py-4 border border-collapse text-sm md:text-base lg:text-lg xl:text-xl font-normal font-sans">{member.username} {(i === 0) && <span>👑</span> }</th>
+                        <th className="px-6 py-4 border border-collapse text-sm md:text-base lg:text-lg xl:text-xl font-normal font-sans">{member.studyTime}</th>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
           </div>
         </main>
       </div>
