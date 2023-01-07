@@ -46,7 +46,7 @@ function SignUp() {
 
     // Post user and navigate to login page.
     axios
-      .post("/signup", user) // post user to backend
+      .post("/api/signup", user) // post user to backend
       .then((res) => {
         if(res.data.alreadyExists) {
           alert("User already exists!");

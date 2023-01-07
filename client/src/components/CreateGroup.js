@@ -26,7 +26,7 @@ function CreateGroup() {
       // If user has a group then navigate to group profile page, else
       // stay in this page.
       axios
-        .post("/check-already-login", {
+        .post("/api/check-already-login", {
           // Send username and device id to backend server
           username: localStorage.getItem("username"),
           uniqeDeviceID: localStorage.getItem("studyhill-device-id"),
@@ -78,7 +78,7 @@ function CreateGroup() {
     e.preventDefault();
 
     axios
-      .put("/creategroup", {
+      .put("/api/creategroup", {
         id: userID,
         groupName: groupName,
         maxSize: groupSize,

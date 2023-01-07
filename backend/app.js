@@ -52,7 +52,7 @@ app.use(express.json());
 const cors = require("cors");
 app.use(cors());
 
-app.post("/login", async (req, res) => {
+app.post("/api/login", async (req, res) => {
   console.log(req.body);
   const { email, password } = req.body;
   User.findUserEmail(email, async function cb(u){
@@ -121,7 +121,7 @@ app.post("/login", async (req, res) => {
   })
 });
 
-app.post("/check-already-login", (req, res) => {  // todo: deviceId part.
+app.post("/api/check-already-login", (req, res) => {  // todo: deviceId part.
   // Print request body for debugging.
   console.log(req.body);
   const username = req.body.username;
@@ -193,7 +193,7 @@ app.post("/check-already-login", (req, res) => {  // todo: deviceId part.
 
 });
 
-app.post("/signup", async (req, res) => {
+app.post("/api/signup", async (req, res) => {
   console.log(req.body);
   const { email, username, password } = req.body;
 
@@ -250,21 +250,21 @@ app.post("/signup", async (req, res) => {
   );
 });
 
-app.get("/weekly-data-of", function(req, res){
+app.get("/api/weekly-data-of", function(req, res){
   const {id} = req.body;
   User.allWeeklyHoursOfId(id, function callback(d){
     return res.json(d);
   });
 })
 
-app.get("/leaderboard-of", function(req, res){
+app.get("/api/leaderboard-of", function(req, res){
   const {groupCode} = req.body;
   const sqlLeaderboard = 
   `SELECT username, studyTime FROM snowhill.group_table_code_${groupCode} ORDER BY studyTime DESC;`
   db.query(sqlLeaderboard, function cb(error, results){if(error) throw error; else return res.json(results);})
 });
 
-app.get("/verify", function (req, res) {
+app.get("/api/verify", function (req, res) {
   try {
     const token = req.query.id;
     const { userId, expired } = decodeRegistrationToken(token); // decode the given url to find user id.
@@ -289,7 +289,7 @@ app.get("/verify", function (req, res) {
   }
 });
 
-app.put("/joingroup", (req, res) => {
+app.put("/api/joingroup", (req, res) => {
   const { id, groupCode } = req.body;
   Group.findGroup(groupCode, function cb(g){
     if (!g) 
@@ -312,7 +312,7 @@ app.put("/joingroup", (req, res) => {
   });
 });
 
-app.put("/leavegroup", (req, res) => {
+app.put("/api/leavegroup", (req, res) => {
   const {id} = req.body;
 
   try{
@@ -324,7 +324,7 @@ app.put("/leavegroup", (req, res) => {
   }
 });
 
-app.put("/creategroup", (req, res) => {
+app.put("/api/creategroup", (req, res) => {
   const { id, maxSize, groupName } = req.body;
   console.log(req.body);
 
@@ -340,11 +340,11 @@ app.put("/creategroup", (req, res) => {
 
 });
 
-app.post("/logout", (req, res) => {
+app.post("/api/logout", (req, res) => {
   res.json({ deletedSuccesfully: true });
 });
 
-app.post("/addtime", (req, res) =>{
+app.post("/api/addtime", (req, res) =>{
   console.log(req.body);
   
   let timeStudied = req.body.timeStudied;
@@ -355,7 +355,7 @@ app.post("/addtime", (req, res) =>{
   addStudyTime(id, new Date(), timeStudied)
 })
 
-app.post("/change-weeklygoal", (req, res) => {
+app.post("/api/change-weeklygoal", (req, res) => {
   console.log(req.body);
   let toChangeId = req.body.id;
   let newWeeklyGoal = req.body.weeklyGoal;

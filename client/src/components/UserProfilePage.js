@@ -86,7 +86,7 @@ function UserProfilePage() {
       // If user has a group then navigate to group profile page, else
       // stay in this page.
       axios
-        .post("/check-already-login", {
+        .post("/api/check-already-login", {
           // Send username and device id to backend server
           username: localStorage.getItem("username"),
           uniqeDeviceID: localStorage.getItem("studyhill-device-id"),
@@ -132,7 +132,7 @@ function UserProfilePage() {
     // post a request to logout user from this device
     // simple by deleting unique device id stored in database
     axios
-      .post("/logout", {
+      .post("/api/logout", {
         username: localStorage.getItem("username"),
         uniqeDeviceID: localStorage.getItem("studyhill-device-id"),
       })
@@ -453,7 +453,7 @@ function UserProfilePage() {
                   onClick={(e) => {
                     e.preventDefault();
                     axios
-                      .post("/change-weeklygoal", {
+                      .post("/api/change-weeklygoal", {
                         id: userID,
                         weeklyGoal: newWeeklyGoal,
                       })

@@ -83,7 +83,7 @@ function GroupProfilePage(props) {
       // If user has a group then navigate to group profile page, else
       // stay in this page.
       axios
-        .post("/check-already-login", {
+        .post("/api/check-already-login", {
           // Send username and device id to backend server
           username: localStorage.getItem("username"),
           uniqeDeviceID: localStorage.getItem("studyhill-device-id"),
@@ -131,7 +131,7 @@ function GroupProfilePage(props) {
     // post a request to logout user from this device
     // simple by deleting unique device id stored in database
     axios
-      .post("/logout", {
+      .post("/api/logout", {
         username: localStorage.getItem("username"),
         uniqeDeviceID: localStorage.getItem("studyhill-device-id"),
       })
@@ -165,7 +165,7 @@ function GroupProfilePage(props) {
   const handleLeaveGroup = (e) => {
     e.preventDefault();
 
-    axios.put("/leavegroup", { id: userID }).then((res) => {
+    axios.put("/api/leavegroup", { id: userID }).then((res) => {
       if (res.data.msg === "Leaved") {
         navigate("/profile-user");
       } else {

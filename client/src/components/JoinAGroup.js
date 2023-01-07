@@ -24,7 +24,7 @@ function JoinAGroup() {
       // If user has a group then navigate to group profile page, else
       // stay in this page.
       axios
-        .post("/check-already-login", {
+        .post("/api/check-already-login", {
           // Send username and device id to backend server
           username: localStorage.getItem("username"),
           uniqeDeviceID: localStorage.getItem("studyhill-device-id"),
@@ -68,7 +68,7 @@ function JoinAGroup() {
     e.preventDefault();
 
     axios
-      .put("/joingroup", { id: userID, groupCode: groupCode })
+      .put("/api/joingroup", { id: userID, groupCode: groupCode })
       .then((res) => {
         if (res.data.msg === "Added") {
           navigate("/profile-group");

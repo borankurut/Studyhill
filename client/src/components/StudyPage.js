@@ -77,7 +77,7 @@ function StudyPage() {
       // If exists navigate to the profile pages, respect to the information that
       // user has group or not, else keep proceed on loading login page.
       axios
-        .post("/check-already-login", {
+        .post("/api/check-already-login", {
           // Send username and device id to backend server
           username: localStorage.getItem("username"),
           uniqeDeviceID: localStorage.getItem("studyhill-device-id"),
@@ -112,7 +112,7 @@ function StudyPage() {
     let timeToSubmitInHours = timeToSubmit / 60;
     console.log(timeToSubmitInHours);
     axios
-      .post("/addtime", { id: id, timeStudied: timeToSubmitInHours })
+      .post("/api/addtime", { id: id, timeStudied: timeToSubmitInHours })
       .catch((err) => console.log(err));
   }, [timeToSubmit]);
 
@@ -149,7 +149,7 @@ function StudyPage() {
         let timeStudiedInHours = (studyCountdown - currentStudyTimerMin) / 60;
         console.log("timeStudiedInHours", timeStudiedInHours);
         axios
-          .post("/addtime", { id: id, timeStudied: timeStudiedInHours })
+          .post("/api/addtime", { id: id, timeStudied: timeStudiedInHours })
           .catch((err) => console.log(err));
       }
       
@@ -232,7 +232,7 @@ function StudyPage() {
         let timeStudiedInHours = (studyCountdown - currentStudyTimerMin) / 60;
         console.log("timeStudiedInHours", timeStudiedInHours);
         axios
-          .post("/addtime", { id: id, timeStudied: timeStudiedInHours })
+          .post("/api/addtime", { id: id, timeStudied: timeStudiedInHours })
           .catch((err) => console.log(err));
       }
       navigate("/profile-user");

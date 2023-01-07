@@ -42,7 +42,7 @@ function Login() {
     }
 
     axios
-      .post("/login", user) // post user to backend
+      .post("/api/login", user) // post user to backend
       .then((res) => {
         // if verification is true, first store user and device id to local storage
         if (res.data.verification) {
@@ -88,7 +88,7 @@ function Login() {
       // If exists navigate to the profile pages, respect to the information that
       // user has group or not, else keep proceed on loading login page.
       axios
-        .post("/check-already-login", {
+        .post("/api/check-already-login", {
           // Send username and device id to backend server
           username: localStorage.getItem("username"),
           uniqeDeviceID: localStorage.getItem("studyhill-device-id"),

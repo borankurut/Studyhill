@@ -12,7 +12,7 @@ const transporter = nm.createTransport({
 });
 
 const sendVerificationMail = function(userMail,userID){
-  const url = 'http://localhost:3001/' + "verify?id=" + encodeRegistrationToken(userID); // fix this later.
+  const url = 'http://165.232.66.125:3001/api/' + "verify?id=" + encodeRegistrationToken(userID); // fix this later.
   transporter.sendMail(
     {from: 'studyhillmail@gmail.com', to: userMail, subject:'Studyhill mail verification',   //options
      text: `Please click this link to confirm your account: ${url}`},(err, info) => {
