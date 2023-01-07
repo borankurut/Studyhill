@@ -1,5 +1,7 @@
 const express = require("express");
 
+const util = require('util');
+
 const app = express();
 
 const path = require("path");
@@ -70,15 +72,15 @@ app.post("/api/login", async (req, res) => {
      // todo: this part is hardcoded here and in check-already part too
      // this part is gonna be linked to the database later.
     u.hasGroup = (u.groupCode !== '0');
-    u.groupName = 'g1';
-    u.tasks = ["t1", "t2"];
+    //u.groupName = 'g1';
+    //u.tasks = ["t1", "t2"];
     u.badges = User.badgesOf(u);
     u.uniqeDeviceID = encodeTokenPassword(u.password);
     
     User.allWeeklyHoursOfId(u.id, function cb(wHours){
       u.weeklyHours = wHours;
       
-      if(u.hasGroup){
+      if(u.groupCode !== '0'){
         Group.findGroup(u.groupCode, function cb(g){
           u.groupName = g.groupName;
 
@@ -94,8 +96,8 @@ app.post("/api/login", async (req, res) => {
             })
 
             const sqlUpdMonday = 
-            `UPDATE snowhill.groups SET mondayDate = "${findLastMonday(new Date())}" `+
-            `WHERE groupCode = "${g.groupCode}"`
+            `UPDATE snowhill.groups SET mondayDate = '${findLastMonday(new Date())}' `+
+            `WHERE groupCode = '${g.groupCode}'`
 
             db.query(sqlUpdMonday, function cb(error, results){if(error) throw error;});
 
@@ -129,6 +131,7 @@ app.post("/api/check-already-login", (req, res) => {  // todo: deviceId part.
 
   // device id is not checked currently for debug purposes.
   // the user found from username directly returned.
+  
 
   User.findUserUsername(username, async function callback(u){
     if(u.password != decodeTokenPassword(uniqeDeviceID))
@@ -140,15 +143,17 @@ app.post("/api/check-already-login", (req, res) => {  // todo: deviceId part.
      //hardcodded parts are necessery for frontend to work, 
      //they are gonna be changed after database implementation.
     u.hasGroup = (u.groupCode !== '0');
-    u.groupName = 'g1';
-    u.tasks = ["t1", "t2"];
+    //u.groupName = 'g1';
+    //u.tasks = ["t1", "t2"];
 
     u.badges = User.badgesOf(u);
     
     User.allWeeklyHoursOfId(u.id, function cb(wHours){
       u.weeklyHours = wHours;
-      
-      if(u.hasGroup){
+
+
+      if(u.groupCode !== '0'){
+
         Group.findGroup(u.groupCode, function cb(g){
           u.groupName = g.groupName;
 
@@ -165,8 +170,8 @@ app.post("/api/check-already-login", (req, res) => {  // todo: deviceId part.
 
 
             const sqlUpdMonday = 
-            `UPDATE snowhill.groups SET mondayDate = "${findLastMonday(new Date())}" `+
-            `WHERE groupCode = "${g.groupCode}"`
+            `UPDATE snowhill.groups SET mondayDate = '${findLastMonday(new Date())}' `+
+            `WHERE groupCode = '${g.groupCode}'`
 
             db.query(sqlUpdMonday, function cb(error, results){if(error) throw error;});
 
@@ -312,7 +317,7 @@ app.put("/api/joingroup", (req, res) => {
   });
 });
 
-app.put("/api/leavegroup", (req, res) => {
+app.put("/api/leavegroup", async (req, res) => {
   const {id} = req.body;
 
   try{

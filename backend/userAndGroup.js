@@ -3,6 +3,8 @@ const users = [];
 
 const mysql = require("mysql");
 
+const util = require('util');
+
 const db = mysql.createConnection({
   host: "kadir-do-user-13247252-0.b.db.ondigitalocean.com",
   port: 25060,
@@ -169,6 +171,8 @@ class User {
   }
 }
 
+
+
 class Group {
   constructor(maxSize, groupName, groupCode){ 
     this.maxSize = maxSize;
@@ -226,11 +230,11 @@ class Group {
             throw error;
           Group.findGroup(groupCode, function cb(g) {
             let newCount = g.memberCount + 1;
-            db.query(`UPDATE snowhill.groups SET memberCount = ${newCount} WHERE groupCode = "${groupCode}"`,
+            db.query(`UPDATE snowhill.groups SET memberCount = ${newCount} WHERE groupCode = '${groupCode}'`,
             (error, result) => {
               if(error)
                 throw error;
-              db.query(`UPDATE snowhill.users SET groupCode = "${groupCode}" WHERE id = ${u.id}`, 
+              db.query(`UPDATE snowhill.users SET groupCode = '${groupCode}' WHERE id = ${u.id}`, 
               (error, result)=>{
                 if(error) 
                   throw error;
@@ -241,29 +245,38 @@ class Group {
     })
   }
   
-  static discardMember(id){
-    User.findUserId(id, function cb(u){
-      db.query(`UPDATE users SET groupCode = '0' WHERE id = ${u.id}`, 
-      (error, results)=>{if(error) throw error;});
 
+  static async discardMember(id){
+    User.findUserId(id, async function cb(u){
+
+      const sqlUpdate = `UPDATE users SET groupCode = '0' WHERE id = ${u.id};`;
+
+      await new Promise((resolve, reject) => {
+        db.query(sqlUpdate, (error, results) => {
+          if (error) reject(error);
+          results = results || {};
+          resolve(results);
+        });
+      });
+      
       const sqlDelUserRow = `DELETE FROM snowhill.group_table_code_${u.groupCode} WHERE member_user_id = ${u.id};`;
       db.query(sqlDelUserRow, (error, results)=>{if(error) throw error;})
-
+ 
       Group.findGroup(u.groupCode, function cb(g) {
         let newCount = g.memberCount - 1;
 
         if(newCount === 0){
           // delete group from groups
-          const sqlDelGroup = `DELETE FROM snowhill.groups WHERE groupCode = "${g.groupCode}";`; 
+          const sqlDelGroup = `DELETE FROM snowhill.groups WHERE groupCode = '${g.groupCode}';`; 
           db.query(sqlDelGroup, function cb(error, results){if(error) throw error;});
-
+ 
           // drop group table.
           const sqlDropTable = `DROP TABLE snowhill.group_table_code_${g.groupCode};`;
           db.query(sqlDropTable, function cb(error, results){if(error) throw error;});
         }
 
         else{
-          db.query(`UPDATE snowhill.groups SET memberCount = ${newCount} WHERE groupCode = "${g.groupCode}"`,
+          db.query(`UPDATE snowhill.groups SET memberCount = ${newCount} WHERE groupCode = '${g.groupCode}'`,
           (error, results) => {if(error) throw error;});
         }
       });
