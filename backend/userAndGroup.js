@@ -4,9 +4,10 @@ const users = [];
 const mysql = require("mysql");
 
 const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "1234",
+  host: "kadir-do-user-13247252-0.b.db.ondigitalocean.com",
+  port: 25060,
+  user: "doadmin",
+  password: "AVNS_2hBscXeK1WeinW6uKJT",
   database: "snowhill", //MySQL açık değilse burada hata verebilir. Bu satır comment edilirse hata gider.
   multipleStatements: true
 });
