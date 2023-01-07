@@ -49,7 +49,7 @@ function GroupProfilePage(props) {
     // for the sake of rendering properly
     // because react useLayoutEffect is run after render.
     setBadges(["badge1", "badge2", "badge3"]);
-    setTasks(["task1", "task2", "task3", "task4"]);
+    setTasks([]);
     setWeeklyGoal(5);
     setweeklyHours({
       date: "foo",
@@ -98,7 +98,6 @@ function GroupProfilePage(props) {
             else {
               // Set user informations here.
               setBadges([...res.data.badges]);
-              setTasks([...res.data.tasks]);
               setWeeklyGoal(res.data.weeklyGoal);
               setweeklyHours({
                 ...res.data.weeklyHours[res.data.weeklyHours.length - 1],
