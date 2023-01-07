@@ -104,7 +104,13 @@ app.post("/login", async (req, res) => {
             db.query(sqlResetTimes, function cb(error, results){if(error) throw error;});
           }
           
-          return res.json(u);
+          const sqlLeaderboard = 
+          `SELECT username, studyTime FROM snowhill.group_table_code_${u.groupCode} ORDER BY studyTime DESC;`
+          db.query(sqlLeaderboard, function cb(error, results){
+            if(error) throw error; 
+            u.leaderboard = results;
+            return res.json(u);
+          })
         })
       }
       else{
@@ -168,8 +174,14 @@ app.post("/check-already-login", (req, res) => {  // todo: deviceId part.
             `WHERE id_group_table_code > 0;`;
             db.query(sqlResetTimes, function cb(error, results){if(error) throw error;});
           }
-          
-          return res.json(u);
+
+          const sqlLeaderboard = 
+          `SELECT username, studyTime FROM snowhill.group_table_code_${u.groupCode} ORDER BY studyTime DESC;`
+          db.query(sqlLeaderboard, function cb(error, results){
+            if(error) throw error; 
+            u.leaderboard = results;
+            return res.json(u);
+          })
         })
       }
       else{
