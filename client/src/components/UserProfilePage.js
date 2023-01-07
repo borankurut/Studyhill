@@ -6,9 +6,20 @@ import moment, { localeData } from "moment";
 function UserProfilePage() {
   const [userName, setUserName] = useState("");
   const [day, setDay] = useState("");
+  const [userID, setUserID] = useState(0);
   const [date, setDate] = useState("");
   const [tasks, setTasks] = useState([]);
   const [weeklyGoal, setWeeklyGoal] = useState("");
+
+  const [newWeeklyGoal, setNewWeeklyGoal] = useState(0);
+
+  // whole weeks
+  const [wholeWeeklyHours, setWholeWeeklyHours] = useState([]);
+
+  // Iterator for whole weeks
+  const [weekIterator, setWeekIterator] = useState(0);
+
+  // A week
   const [weeklyHours, setweeklyHours] = useState({
     date: "foo",
     monday: 1,
@@ -95,7 +106,12 @@ function UserProfilePage() {
               setweeklyHours({
                 ...res.data.weeklyHours[res.data.weeklyHours.length - 1],
               });
+
+              setWholeWeeklyHours([...res.data.weeklyHours]);
+              setWeekIterator(res.data.weeklyHours.length - 1);
+
               setUserName(res.data.username);
+              setUserID(res.data.id);
             }
           }
         })
@@ -159,8 +175,12 @@ function UserProfilePage() {
 
   useEffect(() => {
     localStorage.setItem("tasks", JSON.stringify(tasks));
-    console.log(tasks);
   }, [tasks]);
+
+  useEffect(() => {
+    setweeklyHours({ ...wholeWeeklyHours[weekIterator] });
+  }, [weekIterator]);
+
 
   return (
     <div className="container mx-auto">
@@ -274,14 +294,15 @@ function UserProfilePage() {
               </svg>
               Tasks
             </span>
-            <ul className="list-disc">
+            <ul className="list-disc flex flex-col gap-6">
               {tasks.map((task, i) => (
                 <li
                   key={i}
-                  className="flex gap-2 text-sm md:text-base lg:text-lg xl:text-xl font-light font-sans"
+                  className="flex text-sm md:text-base lg:text-lg xl:text-xl font-light font-sans w-full justify-between"
                 >
                   {/* Task */}
                   {task}
+
                   {/* Delete Button to delete current task */}
                   <button
                     onClick={(e) => {
@@ -315,8 +336,8 @@ function UserProfilePage() {
             </ul>
 
             {/* Add task button */}
-            <form>
-              <input
+            <form className="mt-8">
+              <textarea
                 type="text"
                 value={newTask}
                 className="text-black w-full my-4 p-1 outline-navbar-dark text-base rounded-sm"
@@ -355,11 +376,94 @@ function UserProfilePage() {
             {/* Weekly track div */}
             <div className="flex flex-col items-center justify-center py-2 gap-2">
               <h1 className="text-sm md:text-base lg:text-lg xl:text-xl font-semibold tracking-wider">
-                Weekly Track {weeklyHours.date}
+                Weekly Track
               </h1>
+              {/* weekly button part */}
+              <div className="flex gap-2 font-sans text-sm md:text-base lg:text-lg xl:text-xl font-semibold tracking-wider">
+                {/* Left arrow */}
+                <button
+                  className="border rounded-md hover:text-navbar-dark hover:bg-white cursor-pointer transition duration-150 ease-in"
+                  disabled={weekIterator === 0}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setWeekIterator((prev) => prev - 1);
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-6 h-6"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M15.75 19.5L8.25 12l7.5-7.5"
+                    />
+                  </svg>
+                </button>
+
+                {/* weekly date */}
+                {weeklyHours.date}
+
+                {/* Right arrow */}
+                <button
+                  className="border rounded-md hover:text-navbar-dark hover:bg-white cursor-pointer transition duration-150 ease-in"
+                  disabled={weekIterator === wholeWeeklyHours.length - 1}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setWeekIterator((prev) => prev + 1);
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-6 h-6"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                    />
+                  </svg>
+                </button>
+              </div>
               <p className="text-xs md:text-sm lg:text-base xl:text-lg font-semibold tracking-wider">
                 Weekly Goal is {weeklyGoal}h
               </p>
+
+              <form className="flex gap-2 text-sm md:text-base lg:text-lg xl:text-xl font-semibold tracking-wider">
+                <input
+                  value={newWeeklyGoal}
+                  type="number"
+                  min="1"
+                  max="10"
+                  className="px-2 text-black rounded-md"
+                  onChange={(e) => {
+                    setNewWeeklyGoal(e.target.value);
+                  }}
+                />
+                <button
+                  className="py-1 px-2 border border-white hover:border-slate-300 transition duration-150 ease-in font-semibold text-sm md:text-base lg:text-lg xl:text-xl rounded-md hover:bg-white hover:text-navbar-dark"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    axios
+                      .post("/change-weeklygoal", {
+                        id: userID,
+                        weeklyGoal: newWeeklyGoal,
+                      })
+                      .then(() => navigate("/login"))
+                      .catch((err) => console.log(err));
+                  }}
+                >
+                  Set weekly Goal
+                </button>
+              </form>
             </div>
 
             {/* Graph */}
