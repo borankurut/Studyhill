@@ -366,7 +366,7 @@ function GroupProfilePage(props) {
               </button>
             </form>
           </div>
-          <h1 className="font-bold text-sm md:text-base lg:text-lg xl:text-xl">Group Code {groupCode}</h1>
+          <h1 className="my-6 font-bold text-sm md:text-base lg:text-lg xl:text-xl">Group Code {groupCode}</h1>
         </aside>
 
         {/* Main body */}
