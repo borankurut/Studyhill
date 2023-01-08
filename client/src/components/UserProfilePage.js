@@ -437,7 +437,7 @@ function UserProfilePage() {
                 Weekly Goal is {weeklyGoal}h
               </p>
 
-              <form className="flex gap-2 text-sm md:text-base lg:text-lg xl:text-xl font-semibold tracking-wider">
+              <form className="h-16 flex gap-2 text-sm md:text-base lg:text-lg xl:text-xl font-semibold tracking-wider">
                 <input
                   value={newWeeklyGoal}
                   type="number"
@@ -457,7 +457,7 @@ function UserProfilePage() {
                         id: userID,
                         weeklyGoal: newWeeklyGoal,
                       })
-                      .then(() => navigate("/login"))
+                      .then(() => navigate("/profile-user"))
                       .catch((err) => console.log(err));
                   }}
                 >

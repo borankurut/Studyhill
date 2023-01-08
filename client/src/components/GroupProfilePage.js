@@ -439,7 +439,7 @@ function GroupProfilePage(props) {
                 Weekly Goal is {weeklyGoal}h
               </p>
 
-              <form className="flex gap-2 text-sm md:text-base lg:text-lg xl:text-xl font-semibold tracking-wider">
+              <form className="h-16 flex gap-2 text-sm md:text-base lg:text-lg xl:text-xl font-semibold tracking-wider">
                 <input
                   value={newWeeklyGoal}
                   type="number"
@@ -447,7 +447,6 @@ function GroupProfilePage(props) {
                   max="10"
                   className="px-2 text-black rounded-md"
                   onChange={(e) => {
-                    e.preventDefault();
                     setNewWeeklyGoal(e.target.value);
                   }}
                 />
@@ -456,11 +455,11 @@ function GroupProfilePage(props) {
                   onClick={(e) => {
                     e.preventDefault();
                     axios
-                      .post("/change-weeklygoal", {
+                      .post("/api/change-weeklygoal", {
                         id: userID,
                         weeklyGoal: newWeeklyGoal,
                       })
-                      .then(() => navigate("/login"))
+                      .then(() => navigate("/profile-group"))
                       .catch((err) => console.log(err));
                   }}
                 >
