@@ -11,6 +11,7 @@ function GroupProfilePage(props) {
   const [tasks, setTasks] = useState([]);
   const [weeklyGoal, setWeeklyGoal] = useState("");
   const [leaderboard, setLeaderBoard] = useState([]);
+  const [groupCode, setGroupCode] = useState(0);
 
   const [newWeeklyGoal, setNewWeeklyGoal] = useState(0);
 
@@ -65,6 +66,7 @@ function GroupProfilePage(props) {
     setUserName("Foo");
 
     setGroupMembers(["user1", "user2", "user3", "user4"]);
+    setGroupCode(0);
   }, []);
 
   // For the first load of the user profile page check
@@ -111,6 +113,7 @@ function GroupProfilePage(props) {
               setUserID(res.data.id);
 
               setLeaderBoard([...res.data.leaderboard]);
+              setGroupCode(res.data.groupCode);
             }
           }
         })
@@ -363,6 +366,7 @@ function GroupProfilePage(props) {
               </button>
             </form>
           </div>
+          <h1 className="font-bold text-sm md:text-base lg:text-lg xl:text-xl">Group Code {groupCode}</h1>
         </aside>
 
         {/* Main body */}
