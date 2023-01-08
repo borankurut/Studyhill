@@ -459,7 +459,7 @@ function GroupProfilePage(props) {
                         id: userID,
                         weeklyGoal: newWeeklyGoal,
                       })
-                      .then(() => navigate("/profile-group"))
+                      .then(() => window.location.reload(true))
                       .catch((err) => console.log(err));
                   }}
                 >

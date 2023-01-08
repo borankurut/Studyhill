@@ -457,7 +457,7 @@ function UserProfilePage() {
                         id: userID,
                         weeklyGoal: newWeeklyGoal,
                       })
-                      .then(() => navigate("/profile-user"))
+                      .then(() => window.location.reload(true))
                       .catch((err) => console.log(err));
                   }}
                 >
